@@ -53,14 +53,14 @@ let assetManager = {
    tank: null,
    orca: null,
    woodenGoose: null,
-   chair: null,
+   statue: null,
    allLoaded: false,
 
    // Functions ----------------------------------
    checkLoaded : function() {
       if(!this.allLoaded)
       {
-         if(this.L200 && this.chair && this.orca &&
+         if(this.L200 && this.statue && this.orca &&
             this.plane && this.tank && this.woodenGoose){
              this.allLoaded = true;
              loadingMessage.hide(); 
@@ -69,7 +69,7 @@ let assetManager = {
    },   
 
    hideAll : function() {
-      this.orca.visible = this.woodenGoose.visible = this.chair.visible = 
+      this.orca.visible = this.woodenGoose.visible = this.statue.visible = 
       this.plane.visible = this.L200.visible = this.tank.visible = false;
    }
 }
@@ -78,9 +78,9 @@ loadOBJFile('../assets/objects/', 'plane', 3.5, 0, true);
 loadOBJFile('../assets/objects/', 'L200', 2.5, 90, false);
 loadOBJFile('../assets/objects/', 'tank', 2.0, 90, false);
 
-loadGLTFFile('../assets/objects/', 'orca', 4.0, 180, false);
-loadGLTFFile('../assets/objects/', 'woodenGoose', 2.0, 90, false);
-loadGLTFFile('../assets/objects/','chair', 1.5, 180, false);
+loadGLBFile('../assets/objects/', 'orca', 4.0, 180, false);
+loadGLBFile('../assets/objects/', 'woodenGoose', 2.0, 90, false);
+loadGLBFile('../assets/objects/', 'statue', 1.5, 180, false);
 
 buildInterface();
 render();
@@ -115,7 +115,7 @@ function loadOBJFile(modelPath, modelName, desiredScale, angle, visibility)
   });
 }
 
-function loadGLTFFile(modelPath, modelName, desiredScale, angle, visibility)
+function loadGLBFile(modelPath, modelName, desiredScale, angle, visibility)
 {
    var loader = new GLTFLoader( );
    loader.load( modelPath + modelName + '.glb', function ( gltf ) {
@@ -187,7 +187,7 @@ function buildInterface()
   // GUI interface
   var gui = new GUI();
   gui.add(controls, 'type',
-  ['plane', 'orca', 'woodenGoose', 'chair', 'L200', 'tank'])
+  ['plane', 'orca', 'woodenGoose', 'statue', 'L200', 'tank'])
      .name("Change Object")
      .onChange(function(e) { controls.onChooseObject(); });
   gui.add(controls, 'viewAxes', false)
