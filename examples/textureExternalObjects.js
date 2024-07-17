@@ -29,7 +29,6 @@ scene.add(lightSphere);
 
 // Listen window size changes
 window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
-
 let loadingMessage = new SecondaryBox("Loading...");
 
 var groundPlane = createGroundPlane(6.0, 6.0, 80, 80); // width and height
