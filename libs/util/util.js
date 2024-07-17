@@ -247,14 +247,14 @@ export function initStats(type) {
  *
  * @param additionalProperties Additional properties to pass into the renderer
  */
-export function initRenderer(color = "rgb(0, 0, 0)") {
+export function initRenderer(color = "rgb(0, 0, 0)", shadowMapType = THREE.PCFSoftShadowMap ) {
 
    //var props = (typeof additionalProperties !== 'undefined' && additionalProperties) ? additionalProperties : {};
    var renderer = new THREE.WebGLRenderer();
    //renderer.useLegacyLights = true;
    renderer.shadowMap.enabled = true;
    renderer.shadowMapSoft = true;
-   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+   renderer.shadowMap.type = shadowMapType;
 
    renderer.setClearColor(new THREE.Color(color));
    renderer.setSize(window.innerWidth, window.innerHeight);

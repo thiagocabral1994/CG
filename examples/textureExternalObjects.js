@@ -5,7 +5,7 @@ import {GLTFLoader} from '../build/jsm/loaders/GLTFLoader.js';
 import {OBJLoader} from '../build/jsm/loaders/OBJLoader.js';
 import {MTLLoader} from '../build/jsm/loaders/MTLLoader.js';
 import {initRenderer, 
-        initDefaultSpotlight,
+        initDefaultBasicLight,
         createGroundPlane,
         SecondaryBox,
         getMaxSize,        
@@ -14,9 +14,8 @@ import {initRenderer,
 
 let scene, renderer, camera, orbit, light;
 scene = new THREE.Scene();    // Create main scene
-light = initDefaultSpotlight(scene, new THREE.Vector3(2, 3, 2)); // Use default light
-renderer = initRenderer();    // View function in util/utils
-   renderer.setClearColor("rgb(30, 30, 42)");
+renderer = initRenderer("rgb(30, 30, 42)", THREE.VSMShadowMap);    
+light = initDefaultBasicLight(scene, true, new THREE.Vector3(2, 3, 2), 8, 1024); // Use default light
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
    camera.position.set(2.18, 1.62, 3.31);
    camera.up.set( 0, 1, 0 );
@@ -80,7 +79,7 @@ loadOBJFile('../assets/objects/', 'tank', 2.0, 90, false);
 
 loadGLBFile('../assets/objects/', 'orca', 4.0, 180, false);
 loadGLBFile('../assets/objects/', 'woodenGoose', 2.0, 90, false);
-loadGLBFile('../assets/objects/', 'statue', 1.5, 180, false);
+loadGLBFile('../assets/objects/', 'statue', 2.0, 0, false);
 
 buildInterface();
 render();
