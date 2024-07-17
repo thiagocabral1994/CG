@@ -186,7 +186,7 @@ function buildInterface()
   // GUI interface
   var gui = new GUI();
   gui.add(controls, 'type',
-  ['plane', 'orca', 'woodenGoose', 'statue', 'L200', 'tank'])
+  ['plane', 'orca', 'woodenGoose', 'L200', 'tank', 'statue'])
      .name("Change Object")
      .onChange(function(e) { controls.onChooseObject(); });
   gui.add(controls, 'viewAxes', false)
