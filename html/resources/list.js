@@ -28,7 +28,6 @@ var list = {
 				"Manual Creation": "html/geometriesManualInfo",				
 				"Basic": "html/geometriesBasicInfo",
 				"Lathe": "html/geometriesLatheInfo",
-				"Extrusion": "html/geometriesExtrusionInfo",
 				"Convex": "html/geometriesConvexInfo",
             "CSG": "html/geometryCSGInfo",
 				"Loading External Files": "html/geometriesExternalObjectsInfo",
