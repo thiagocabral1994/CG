@@ -6,13 +6,13 @@ import { initDefaultSpotlight,
          initRenderer} from "../libs/util/util.js";
 
 // init scene and camera
-let scene, camera, renderer, light;
+let scene, camera, renderer;
 renderer = initRenderer();
    renderer.setClearColor(new THREE.Color('lightgrey'), 0)   
 scene	= new THREE.Scene();
 camera = new THREE.Camera();
    scene.add(camera);
-light = initDefaultSpotlight(scene, new THREE.Vector3(25, 30, 20)); // Use default light
+initDefaultSpotlight(scene, new THREE.Vector3(25, 30, 20), 4000); // Use default light
 
 // Set AR Stuff
 let AR = {
@@ -71,13 +71,16 @@ function createTeapot()
 {
 	var textureLoader = new THREE.TextureLoader();
 	var glass  = textureLoader.load('../assets/textures/granite.png');
-	glass.mapping = THREE.EquirectangularReflectionMapping; // Reflection as default
-	glass.encoding = THREE.sRGBEncoding;
+      glass.mapping = THREE.EquirectangularReflectionMapping; // Reflection as default
+      glass.encoding = THREE.SRGBColorSpace;
 
 	// Create the main object (teapot)
 	var geometry = new TeapotGeometry(0.5);
-	var material = new THREE.MeshLambertMaterial({color:"rgb(255,255,255)", envMap:glass, refractionRatio: 0.95 });
-	  material.side = THREE.DoubleSide;
+	var material = new THREE.MeshPhongMaterial({
+      color:"rgb(255,255,255)", 
+      envMap:glass, 
+      refractionRatio: 0.95 });
+      material.side = THREE.DoubleSide;
 	var obj = new THREE.Mesh(geometry, material);
 	  obj.position.set(0.0, 0.5, 0.0);
    obj.visible = false;
