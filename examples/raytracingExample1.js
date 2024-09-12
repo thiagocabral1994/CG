@@ -10,6 +10,17 @@ var camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHe
 	camera.position.z = 5;
 
 var renderer = new RaytracingRenderer(window.innerWidth, window.innerHeight, 32, camera);
+
+// light
+var intensity = 0.4;
+var light = new THREE.DirectionalLight("rgb(255,255,255)", intensity );
+light.position.set( -3, 0, 7 );
+scene.add( light );
+
+light = new THREE.SpotLight( "rgb(255,255,255)", intensity );
+light.position.set( 3, 0, 7 );
+scene.add( light );
+
 var container = document.createElement( 'div' );
 	document.body.appendChild( container );
 	container.appendChild( renderer.domElement );
@@ -98,20 +109,6 @@ var sphere = new THREE.Mesh( sphereGeometry, phongMaterialAmarelo );
 sphere.scale.multiplyScalar( 0.5 );
 sphere.position.set( 3, -1.5, -3 );
 scene.add( sphere );
-
-// light
-var intensity = 0.3;
-var light = new THREE.PointLight("rgb(255,255,255)", intensity );
-light.position.set( -3, 0, 7 );
-scene.add( light );
-
-light = new THREE.PointLight( "rgb(255,255,255)", intensity );
-light.position.set( 3, 0, 7 );
-scene.add( light );
-
-light = new THREE.PointLight( "rgb(255,255,255)", intensity );
-light.position.set( 0, 5, 0 );
-scene.add( light );
 
 render();
 
