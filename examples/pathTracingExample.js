@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import GUI from '../libs/util/dat.gui.module.js'
 import Stats from '../build/jsm/libs/stats.module.js';
-import { OrbitControls } from '../../build/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 // scene/demo-specific variables go here
 let torusObject;
