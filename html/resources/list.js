@@ -56,9 +56,8 @@ var list = {
 			"Realism":  {
 				"Ray Tracing 1 (CPU)": "html/raytracingExample1Info",
 				"Ray Tracing 2 (CPU)": "html/raytracingExample2Info",
-            "Ray Tracing (GLSL)": "html/rayTracingGLSLExampleInfo",
-				"Path Tracing 1 (GLSL)": "html/pathTracingExample1Info",            
-				"Path Tracing 2 (GLSL)": "html/pathTracingExample2Info",                        
+            "Ray Tracing  (GLSL)": "html/rayTracingGLSLExampleInfo",
+				"Path Tracing (GLSL)": "html/pathTracingExampleInfo",            
 			},			
 		},
 		"XR": {

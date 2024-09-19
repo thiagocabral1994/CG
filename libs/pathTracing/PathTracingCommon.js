@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 THREE.ShaderChunk[ 'pathtracing_uniforms_and_defines' ] = `
 uniform sampler2D tPreviousTexture;
 uniform sampler2D tBlueNoiseTexture;
