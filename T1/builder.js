@@ -4,6 +4,7 @@ import {
    initRenderer,
    onWindowResize
 } from "../libs/util/util.js";
+import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 
 let scene, renderer, camera, keyboard;
@@ -67,6 +68,7 @@ camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight,
 camera.position.copy(camPos);
 camera.up.copy(camUp);
 camera.lookAt(camLook);
+var controls = new OrbitControls(camera, renderer.domElement);
 
 render();
 
