@@ -4,6 +4,7 @@ import {
    initRenderer,
    onWindowResize
 } from "../libs/util/util.js";
+import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 
 let scene, renderer, camera, keyboard;
@@ -62,11 +63,19 @@ let camPos = new THREE.Vector3(0, 5 * VOXEL_SIZE, 11 * VOXEL_SIZE);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0.0, 0.0, 0.0);
 
+// Armazena posição inicial da camera
+const initialCamPos = camPos.clone();
+const initialCamUp = camUp.clone();
+const initialCamLook = camLook.clone();
+
 // Main camera
-camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.copy(camPos);
+camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);  
+camera.position.copy(camPos);  //posição inicial da camera
 camera.up.copy(camUp);
 camera.lookAt(camLook);
+var controls = new OrbitControls(camera, renderer.domElement);
+
+
 
 render();
 
@@ -134,6 +143,13 @@ function keyboardUpdate() {
    if (keyboard.down(".")) {
       activeMaterialIndex = activeMaterialIndex < materials.length - 1 ? activeMaterialIndex + 1 : 0;
       voxelCursorMesh.material = getVoxelCursorMeshMaterial();
+   }
+   // reseta camera apertando R
+   if (keyboard.down("R")) {
+      camera.position.copy(initialCamPos); 
+      camera.up.copy(initialCamUp);       
+      camera.lookAt(initialCamLook);      
+      controls.update();                 
    }
 }
 
