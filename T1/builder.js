@@ -98,7 +98,7 @@ function keyboardUpdate() {
    
          voxelMap.set(key, {
             mesh: voxelMesh,
-            material: cursorMaterials[activeMaterialIndex],
+            materialKey: cursorMaterials[activeMaterialIndex],
          });
          voxelMesh.position.set(x, y, z);
          scene.add(voxelMesh);
@@ -210,12 +210,12 @@ document.getElementById('save-file-form').addEventListener('submit', function(ev
    event.preventDefault();
 
    const positionedVoxelList = [];
-   voxelMap.forEach(({mesh, material}) => {
+   voxelMap.forEach(({mesh, materialKey}) => {
       positionedVoxelList.push({
          x: transformGridCoordinate(mesh.position.x),
          y: transformGridCoordinate(mesh.position.y),
          z: transformGridCoordinate(mesh.position.z),
-         material,
+         materialKey,
       });
    });
 
