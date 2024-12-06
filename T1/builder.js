@@ -35,7 +35,7 @@ const materialCatalog = {
    [MATERIAL.BUILDER_FLOOR]: { color: 'lightblue' },
 };
 
-const cursorMaterials = [ MATERIAL.M1, MATERIAL.M2,  MATERIAL.M3, MATERIAL.M4, MATERIAL.M5 ];
+const cursorMaterials = [MATERIAL.M1, MATERIAL.M2, MATERIAL.M3, MATERIAL.M4, MATERIAL.M5];
 
 let activeMaterialIndex = 0;
 
@@ -75,6 +75,11 @@ let camPos = new THREE.Vector3(0, 5 * VOXEL_SIZE, 11 * VOXEL_SIZE);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0.0, 0.0, 0.0);
 
+// Armazena posição inicial da camera
+const initialCamPos = camPos.clone();
+const initialCamUp = camUp.clone();
+const initialCamLook = camLook.clone();
+
 // Main camera
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.copy(camPos);
@@ -95,7 +100,7 @@ function keyboardUpdate() {
          const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
          const voxelMeshMaterial = getVoxelMeshMaterial();
          const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
-   
+
          voxelMap.set(key, {
             mesh: voxelMesh,
             materialKey: cursorMaterials[activeMaterialIndex],
@@ -152,6 +157,13 @@ function keyboardUpdate() {
       activeMaterialIndex = activeMaterialIndex < cursorMaterials.length - 1 ? activeMaterialIndex + 1 : 0;
       voxelCursorMesh.material = getVoxelCursorMeshMaterial();
    }
+   // reseta camera apertando R
+   if (keyboard.down("R")) {
+      camera.position.copy(initialCamPos);
+      camera.up.copy(initialCamUp);
+      camera.lookAt(initialCamLook);
+      controls.update();
+   }
 }
 
 function render() {
@@ -205,12 +217,12 @@ function transformGridCoordinate(coordinate) {
    return (coordinate - (VOXEL_SIZE / 2)) / VOXEL_SIZE;
 }
 
-document.getElementById('save-file-form').addEventListener('submit', function(event) {
+document.getElementById('save-file-form').addEventListener('submit', function (event) {
    // Importante para a página não recarregar
    event.preventDefault();
 
    const positionedVoxelList = [];
-   voxelMap.forEach(({mesh, materialKey}) => {
+   voxelMap.forEach(({ mesh, materialKey }) => {
       positionedVoxelList.push({
          x: transformGridCoordinate(mesh.position.x),
          y: transformGridCoordinate(mesh.position.y),
@@ -221,12 +233,12 @@ document.getElementById('save-file-form').addEventListener('submit', function(ev
 
    const fileName = getSaveFormFileName();
    downloadObject(positionedVoxelList, fileName);
- });
+});
 
- 
-document.getElementById('load-file-form').addEventListener('submit', function(event) {
+
+document.getElementById('load-file-form').addEventListener('submit', function (event) {
    // Importante para a página não recarregar
    event.preventDefault();
 
    // TODO
- });
+});
