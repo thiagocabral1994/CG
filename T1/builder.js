@@ -17,18 +17,30 @@ keyboard = new KeyboardState();
 const VOXEL_SIZE = 5;
 const VOXEL_COUNT = 10;
 
-const materials = [
-   { color: 'green' },
-   { color: 'red' },
-   { color: 'blue' },
-   { color: 'yellow' },
-   { color: 'purple' },
-];
+export const MATERIAL = {
+   M1: "M1",
+   M2: "M2",
+   M3: "M3",
+   M4: "M4",
+   M5: "M5",
+   BUILDER_FLOOR: "BUILDER_FLOOR",
+}
+
+const materialCatalog = {
+   [MATERIAL.M1]: { color: 'green' },
+   [MATERIAL.M2]: { color: 'red' },
+   [MATERIAL.M3]: { color: 'blue' },
+   [MATERIAL.M4]: { color: 'yellow' },
+   [MATERIAL.M5]: { color: 'purple' },
+   [MATERIAL.BUILDER_FLOOR]: { color: 'lightblue' },
+};
+
+const cursorMaterials = [ MATERIAL.M1, MATERIAL.M2,  MATERIAL.M3, MATERIAL.M4, MATERIAL.M5 ];
 
 let activeMaterialIndex = 0;
 
 const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * VOXEL_COUNT, VOXEL_SIZE * VOXEL_COUNT);
-const planeMaterial = new THREE.MeshBasicMaterial({ color: 'lightblue' });
+const planeMaterial = new THREE.MeshBasicMaterial(materialCatalog[MATERIAL.BUILDER_FLOOR]);
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -44,11 +56,11 @@ const gridHelper = new THREE.GridHelper(VOXEL_SIZE * VOXEL_COUNT, VOXEL_COUNT, 0
 scene.add(gridHelper);
 
 function getVoxelCursorMeshMaterial() {
-   return new THREE.MeshBasicMaterial({ ...materials[activeMaterialIndex], opacity: 0.5, transparent: true });
+   return new THREE.MeshBasicMaterial({ ...materialCatalog[cursorMaterials[activeMaterialIndex]], opacity: 0.5, transparent: true });
 }
 
 function getVoxelMeshMaterial() {
-   return new THREE.MeshBasicMaterial({ ...materials[activeMaterialIndex] });
+   return new THREE.MeshBasicMaterial({ ...materialCatalog[cursorMaterials[activeMaterialIndex]] });
 }
 
 // Create objects
@@ -76,7 +88,7 @@ function keyboardUpdate() {
 
    keyboard.update();
 
-   if (keyboard.down("Q") && !voxelMap.has(voxelCursorMesh.position)) {
+   if (keyboard.down("Q")) {
       const { x, y, z } = voxelCursorMesh.position;
       const key = `${x},${y},${z}`;
       if (!voxelMap.has(key)) {
@@ -84,7 +96,10 @@ function keyboardUpdate() {
          const voxelMeshMaterial = getVoxelMeshMaterial();
          const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
    
-         voxelMap.set(key, voxelMesh);
+         voxelMap.set(key, {
+            mesh: voxelMesh,
+            materialKey: cursorMaterials[activeMaterialIndex],
+         });
          voxelMesh.position.set(x, y, z);
          scene.add(voxelMesh);
       }
@@ -93,9 +108,9 @@ function keyboardUpdate() {
    if (keyboard.down("E")) {
       const { x, y, z } = voxelCursorMesh.position;
       const key = `${x},${y},${z}`;
-      const voxelMeshToRemove = voxelMap.get(key);
-      if (voxelMeshToRemove) {
-         scene.remove(voxelMeshToRemove);
+      const voxelToRemove = voxelMap.get(key);
+      if (voxelToRemove) {
+         scene.remove(voxelToRemove.mesh);
          voxelMap.delete(key);
       }
    }
@@ -129,12 +144,12 @@ function keyboardUpdate() {
    }
 
    if (keyboard.down(",")) {
-      activeMaterialIndex = activeMaterialIndex > 0 ? activeMaterialIndex - 1 : materials.length - 1;
+      activeMaterialIndex = activeMaterialIndex > 0 ? activeMaterialIndex - 1 : cursorMaterials.length - 1;
       voxelCursorMesh.material = getVoxelCursorMeshMaterial();
    }
 
    if (keyboard.down(".")) {
-      activeMaterialIndex = activeMaterialIndex < materials.length - 1 ? activeMaterialIndex + 1 : 0;
+      activeMaterialIndex = activeMaterialIndex < cursorMaterials.length - 1 ? activeMaterialIndex + 1 : 0;
       voxelCursorMesh.material = getVoxelCursorMeshMaterial();
    }
 }
@@ -144,3 +159,74 @@ function render() {
    keyboardUpdate();
    renderer.render(scene, camera);
 }
+
+
+// Salvar arquivos
+function getSaveFormFileName() {
+   return document.getElementById('savefileName').value || 'model.json';
+}
+
+/**
+ * Cria um blob e realiza o download de um objeto javascript para um arquivo.
+ * 
+ * @param {object} object 
+ * @param {string} fileName 
+ */
+function downloadObject(object, fileName) {
+   const IDENT_SPACES = 2;
+   const jsonString = JSON.stringify(object, null, IDENT_SPACES);
+
+   const blob = new Blob([jsonString], { type: 'application/json' });
+
+   const link = document.createElement('a');
+   link.href = URL.createObjectURL(blob);
+   link.download = fileName;
+   link.click();
+
+   // O elemento tipo âncora foi criado artificialmente, então precisamos revogar a URL de download.
+   URL.revokeObjectURL(link.href);
+}
+
+/**
+ * Converte o valor de uma coordenada adicionando a dimensão do voxel
+ * 
+ * @param {number} baseCoordinate 
+ */
+function transformVoxelCoordinate(baseCoordinate) {
+   return baseCoordinate * VOXEL_SIZE + (VOXEL_SIZE / 2);
+}
+
+/**
+ * Converte o valor de uma coordenada retirando o valor da dimensão do voxel
+ * 
+ * @param {number} coordinate 
+ */
+function transformGridCoordinate(coordinate) {
+   return (coordinate - (VOXEL_SIZE / 2)) / VOXEL_SIZE;
+}
+
+document.getElementById('save-file-form').addEventListener('submit', function(event) {
+   // Importante para a página não recarregar
+   event.preventDefault();
+
+   const positionedVoxelList = [];
+   voxelMap.forEach(({mesh, materialKey}) => {
+      positionedVoxelList.push({
+         x: transformGridCoordinate(mesh.position.x),
+         y: transformGridCoordinate(mesh.position.y),
+         z: transformGridCoordinate(mesh.position.z),
+         materialKey,
+      });
+   });
+
+   const fileName = getSaveFormFileName();
+   downloadObject(positionedVoxelList, fileName);
+ });
+
+ 
+document.getElementById('load-file-form').addEventListener('submit', function(event) {
+   // Importante para a página não recarregar
+   event.preventDefault();
+
+   // TODO
+ });
