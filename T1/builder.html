@@ -1,28 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>T1 - Ambiente de Modelagem</title>
-    <link rel="shortcut icon" href="../favicon.ico">
-    <link rel="stylesheet" href="../html/resources/default.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">  
-    <style>
-			body {
-				font-family: Monospace;
-				background-color: #f0f0f0;
-				margin: 0px;
-				overflow: hidden;
-			}
-		</style>
+  <title>T1 - Ambiente de Modelagem</title>
+  <link rel="shortcut icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../html/resources/default.css">
+  <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Monospace;
+      background-color: #f0f0f0;
+      margin: 0px;
+      overflow: hidden;
+    }
+
+    .builder-forms {
+      position: fixed;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+  </style>
 </head>
 
 <body>
   <!-- Import maps polyfill -- Remove this when import maps will be widely supported-->
-  <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>  
-  <script type="importmap"> 
+  <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+  <script type="importmap">
     {"imports": {"three": "../build/three.module.js"}} 
-  </script> 
+  </script>
 
-  <div id="webgl-output">            
+  <div class="builder-forms">
+    <div data-role="main" class="ui-content">
+      <form id="save-file-form">
+        <fieldset data-role="collapsible">
+          <legend>Clique aqui para criar um novo arquivo</legend>
+          <label for="savefileName">Nome do arquivo:</label>
+          <input type="text" id="savefileName" name="savefileName" placeholder="Nome do arquivo (e.x., data.json)" required>
+          <input type="submit" data-inline="true" value="Salvar">
+        </fieldset>
+      </form>
+    </div>
+
+    <div data-role="main" class="ui-content">
+      <form id="load-file-form">
+        <fieldset data-role="collapsible">
+          <legend>Clique aqui para carregar o arquivo</legend>
+          <label for="loadFileName">Arquivo:</label>
+          <input type="loadFileName" name="Arquivo" id="loadFileName" accept=".json" required>
+          <input type="submit" data-inline="true" value="Carregar">
+        </fieldset>
+      </form>
+    </div>
+  </div>
+
+  <div id="webgl-output">
     <script type="module" src="builder.js"></script>
   </div>
 </body>
