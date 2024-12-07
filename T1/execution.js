@@ -2,21 +2,23 @@ import * as THREE from 'three';
 import KeyboardState from '../libs/util/KeyboardState.js'
 import {
     initRenderer,
+    initDefaultBasicLight,
     onWindowResize
 } from "../libs/util/util.js";
+import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { VoxelTransformer } from './components/VoxelTransformer.js';
 import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE_SLOTS } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
 
-let scene, renderer, camera, keyboard;
+let scene, renderer, light, keyboard;
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#add9e6");    // View function in util/utils
-window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
+light = initDefaultBasicLight(scene);
 keyboard = new KeyboardState();
 
 const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT, VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT);
-const planeMaterial = new THREE.MeshBasicMaterial(VoxelMaterial.catalog[MATERIAL.EXEC_FLOOR_0]);
+const planeMaterial = new THREE.MeshLambertMaterial(VoxelMaterial.catalog[MATERIAL.EXEC_FLOOR_0]);
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -28,10 +30,6 @@ planeMesh.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1
 planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1   
 scene.add(planeMesh);
 
-let camPos = new THREE.Vector3(0, 5 * VOXEL_SIZE, 11 * VOXEL_SIZE);
-let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
-let camLook = new THREE.Vector3(0.0, 0.0, 0.0);
-
 function createVoxel(x, y, z, key) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
     const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(key);
@@ -40,10 +38,6 @@ function createVoxel(x, y, z, key) {
     voxelMesh.position.set(x, y, z);
     scene.add(voxelMesh);
 }
-
-// Temp
-const gridHelper = new THREE.GridHelper(VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT, EXEC_AXIS_VOXEL_COUNT, 0x444444, 0x888888);
-scene.add(gridHelper);
 
 async function addTree(treeKey, mapPosition) {
     const response = await fetch(`./assets/trees/${treeKey}.json`);
@@ -97,21 +91,108 @@ function renderValley() {
     }
 
     // Prencheer os slots das árvores.
-    TREE_SLOTS.forEach(({ tree, position }) => addTree(tree, position));
+    const promises = TREE_SLOTS.map(({ tree, position }) => addTree(tree, position));
+    return Promise.all(promises);
 }
 
-// Main camera
-camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.copy(camPos);
-camera.up.copy(camUp);
-camera.lookAt(camLook);
-var controls = new OrbitControls(camera, renderer.domElement);
+// Orbital camera
+const camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 
-renderValley();
-render();
+const orbitalCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+orbitalCamera.position.copy(new THREE.Vector3(20 * VOXEL_SIZE, 20 * VOXEL_SIZE, 46 * VOXEL_SIZE));
+orbitalCamera.up.copy(camUp);
+orbitalCamera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
+const orbitalControls = new OrbitControls(orbitalCamera, renderer.domElement);
 
+const firstPersonCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+firstPersonCamera.position.copy(new THREE.Vector3(0, VOXEL_SIZE / 2, 0));
+firstPersonCamera.up.copy(camUp);
+firstPersonCamera.lookAt(new THREE.Vector3(VOXEL_SIZE, VOXEL_SIZE / 2, VOXEL_SIZE));
+const firstPersonControls = new PointerLockControls(firstPersonCamera, renderer.domElement);
+scene.add(firstPersonControls.getObject())
+
+
+window.addEventListener('resize', function () { onWindowResize(orbitalCamera, renderer) }, false);
+window.addEventListener('resize', function () { onWindowResize(firstPersonCamera, renderer) }, false);
+
+let isFirstPersonCamera = false;
+
+// swith between cameras
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'c') { // C 
+        isFirstPersonCamera = !isFirstPersonCamera;
+        if (isFirstPersonCamera) {
+            firstPersonControls.lock();
+            orbitalControls.enabled = false;
+        } else {
+            firstPersonControls.unlock();
+            orbitalControls.enabled = true;
+            // Isso é necessário para evitar um estado intermediário onde o usuário não consegue orbitar a câmera até apertar a tecla ESC.
+            document.exitPointerLock();
+        }
+    }
+});
+
+// movement controls
+const speed = 20;
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+
+window.addEventListener('keydown', (event) => movementControls(event.key, true));
+window.addEventListener('keyup', (event) => movementControls(event.key, false));
+document.getElementById('webgl-output').addEventListener('click', function () {
+    if (isFirstPersonCamera && !firstPersonControls.isLocked) {
+        firstPersonControls.lock();
+    }
+}, false);
+
+function movementControls(key, value) {
+    switch (key) {
+        case 'w':
+            moveForward = value;
+            break; // W
+        case 's':
+            moveBackward = value;
+            break; // S
+        case 'a':
+            moveLeft = value;
+            break; // A
+        case 'd':
+            moveRight = value;
+            break; // D
+    }
+}
+
+function moveAnimate(delta) {
+    if (moveForward) {
+        firstPersonControls.moveForward(speed * delta);
+    }
+    else if (moveBackward) {
+        firstPersonControls.moveForward(speed * -1 * delta);
+    }
+
+    if (moveRight) {
+        firstPersonControls.moveRight(speed * delta);
+    }
+    else if (moveLeft) {
+        firstPersonControls.moveRight(speed * -1 * delta);
+    }
+}
+
+renderValley().then(() => {
+    // Esperamos carregar todas as árvores antes de renderizar o mapa.
+    render();
+});
+
+const clock = new THREE.Clock();
 function render() {
     requestAnimationFrame(render);
-    // keyboardUpdate();  
-    renderer.render(scene, camera);
+
+    if (firstPersonControls.isLocked) {
+        moveAnimate(clock.getDelta());
+    }
+
+    renderer.render(scene, isFirstPersonCamera ? firstPersonCamera : orbitalCamera);
 }

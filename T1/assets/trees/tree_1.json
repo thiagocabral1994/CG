@@ -400,5 +400,11 @@
     "gridY": 5,
     "gridZ": -1,
     "materialKey": "M5"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "M5"
   }
 ]
