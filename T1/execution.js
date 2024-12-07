@@ -1,23 +1,22 @@
 import * as THREE from 'three';
 import KeyboardState from '../libs/util/KeyboardState.js'
 import {
-   initRenderer,
-   onWindowResize
+    initRenderer,
+    onWindowResize
 } from "../libs/util/util.js";
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
+import { VoxelTransformer } from './components/VoxelTransformer.js';
+import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE_SLOTS } from './global/constants.js';
+import { VoxelMaterial } from './components/material.js';
 
 let scene, renderer, camera, keyboard;
-const voxelMap = new Map();
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#add9e6");    // View function in util/utils
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 
-const VOXEL_SIZE = 5;
-const VOXEL_COUNT = 15;
-
-const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * VOXEL_COUNT, VOXEL_SIZE * VOXEL_COUNT);
-const planeMaterial = new THREE.MeshBasicMaterial({ color: 'green' });
+const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT, VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT);
+const planeMaterial = new THREE.MeshBasicMaterial(VoxelMaterial.catalog[MATERIAL.EXEC_FLOOR_0]);
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -29,76 +28,77 @@ planeMesh.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1
 planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1   
 scene.add(planeMesh);
 
-
 let camPos = new THREE.Vector3(0, 5 * VOXEL_SIZE, 11 * VOXEL_SIZE);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0.0, 0.0, 0.0);
 
+function createVoxel(x, y, z, key) {
+    const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+    const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(key);
+    const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
 
-
-
-let activeMaterialIndex = 0;
-
-const materials = [
-   { color: 'green' }, 
-   { color: 'red' }, 
-   { color: 'blue' },
-   { color: 'white' },
-   { color: '#D2B48C' },
-];
-
-function getVoxelMeshMaterial(index) {
-   return new THREE.MeshBasicMaterial({ ...materials[index] });
+    voxelMesh.position.set(x, y, z);
+    scene.add(voxelMesh);
 }
 
-function createVoxel(x, y, z, c)
-{
-   const position = new THREE.Vector3(x, y, z);
-   const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-   const voxelMeshMaterial = getVoxelMeshMaterial(c); 
-   const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
+// Temp
+const gridHelper = new THREE.GridHelper(VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT, EXEC_AXIS_VOXEL_COUNT, 0x444444, 0x888888);
+scene.add(gridHelper);
 
-   voxelMesh.position.set(x, y, z);
-   scene.add(voxelMesh);
+async function addTree(treeKey, mapPosition) {
+    const response = await fetch(`./assets/trees/${treeKey}.json`);
+    const tree1VoxelList = await response.json();
+    tree1VoxelList.forEach(({ gridX, gridY, gridZ, materialKey }) => {
+        const x = VoxelTransformer.transformVoxelCoordinate(mapPosition.x + gridX, false);
+        const y = VoxelTransformer.transformVoxelCoordinate(mapPosition.y + gridY);
+        const z = VoxelTransformer.transformVoxelCoordinate(mapPosition.z + gridZ, false);
+        createVoxel(x, y, z, materialKey);
+    });
 }
 
-function mapDraw() {
-    let leftStartX = -10; 
-    let rightStartX = 10; 
-    const startZ = -31; 
-    const endZ = 31; 
-    const xMin = -31; 
-    const xMax = 31; 
-
-    for (let z = startZ; z <= endZ; z++) {
-        const variation = Math.sin(z / 10) * 5; 
-
-        for (let x = xMin; x <= leftStartX + Math.round(variation); x++) {
-            createVoxel(x, 2.5, z, 4); 
-        }
-
-        
-        for (let x = rightStartX + Math.round(variation); x <= xMax; x++) {
-            createVoxel(x, 2.5, z, 4); 
-        }
+function drawXAxis(minX, maxX, y, z, matKey) {
+    for (let x = minX; x <= maxX; x++) {
+        createVoxel(
+            VoxelTransformer.transformVoxelCoordinate(x, false),
+            VoxelTransformer.transformVoxelCoordinate(y),
+            VoxelTransformer.transformVoxelCoordinate(z, false),
+            matKey
+        );
     }
 
-     leftStartX = -28; 
-     rightStartX = 28; 
+}
+
+function renderValley() {
+    let leftStartX = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 7);
+    let rightStartX = Math.floor(EXEC_AXIS_VOXEL_COUNT / 7);
+    const startZ = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
+    const endZ = Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
+    const xMin = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
+    const xMax = Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
+
     for (let z = startZ; z <= endZ; z++) {
-      const variation = Math.sin(z / 10) * 2; 
+        const variation = Math.cos(z / 8) * 3;
+        // Renderiza o lado esquerdo do primeiro nível
+        drawXAxis(xMin, leftStartX + Math.round(variation), 0, z, MATERIAL.EXEC_FLOOR_1);
+        // Renderiza o lado direito do primeiro nível.
+        drawXAxis(rightStartX + Math.round(variation), xMax, 0, z, MATERIAL.EXEC_FLOOR_1);
+    }
 
-     
-      for (let x = xMin; x <= leftStartX + Math.round(variation); x++) {
-          createVoxel(x, 7.5, z, 3); 
-      }
+    leftStartX = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 3.5);
+    rightStartX = Math.floor(EXEC_AXIS_VOXEL_COUNT / 3.5);
+    for (let z = startZ; z <= endZ; z++) {
+        let variation = Math.cos(z / 5) * 2;
+        // Renderiza o lado esquerdo do segundo nível
+        drawXAxis(xMin, leftStartX + Math.round(variation), 1, z, MATERIAL.EXEC_FLOOR_2);
 
-     
-      for (let x = rightStartX + Math.round(variation); x <= xMax; x++) {
-          createVoxel(x, 7.5, z, 3); 
-      }
-   }
-  }
+        variation = Math.cos(z / 10) * 3;
+        // Renderiza o lado direito do segundo nível
+        drawXAxis(rightStartX + Math.round(variation), xMax, 1, z, MATERIAL.EXEC_FLOOR_2);
+    }
+
+    // Prencheer os slots das árvores.
+    TREE_SLOTS.forEach(({ tree, position }) => addTree(tree, position));
+}
 
 // Main camera
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -107,11 +107,11 @@ camera.up.copy(camUp);
 camera.lookAt(camLook);
 var controls = new OrbitControls(camera, renderer.domElement);
 
-mapDraw();
+renderValley();
 render();
 
 function render() {
-   requestAnimationFrame(render);
-   // keyboardUpdate();  
-   renderer.render(scene, camera);
+    requestAnimationFrame(render);
+    // keyboardUpdate();  
+    renderer.render(scene, camera);
 }

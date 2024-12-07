@@ -6,7 +6,7 @@ import {
 } from "../libs/util/util.js";
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { VoxelTransformer } from './components/VoxelTransformer.js';
-import { VOXEL_COUNT, VOXEL_SIZE, MATERIAL } from './global/constants.js';
+import { BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE, MATERIAL, EXPORT_FILENAME } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
 import { VoxelBuilder } from './components/VoxelBuilder.js';
 
@@ -21,7 +21,7 @@ const cursorMaterials = [MATERIAL.M1, MATERIAL.M2, MATERIAL.M3, MATERIAL.M4, MAT
 
 let activeMaterialIndex = 0;
 
-const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * VOXEL_COUNT, VOXEL_SIZE * VOXEL_COUNT);
+const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT);
 const planeMaterial = new THREE.MeshBasicMaterial(VoxelMaterial.catalog[MATERIAL.BUILDER_FLOOR]);
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
@@ -34,7 +34,7 @@ planeMesh.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1
 planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1   
 scene.add(planeMesh);
 
-const gridHelper = new THREE.GridHelper(VOXEL_SIZE * VOXEL_COUNT, VOXEL_COUNT, 0x444444, 0x888888);
+const gridHelper = new THREE.GridHelper(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, BUILDER_AXIS_VOXEL_COUNT, 0x444444, 0x888888);
 scene.add(gridHelper);
 
 // Create objects
@@ -112,23 +112,23 @@ function keyboardUpdate() {
       }
    }
 
-   if (keyboard.down("right") && voxelCursorMesh.position.x < (((VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("right") && voxelCursorMesh.position.x < (((BUILDER_AXIS_VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.x += VOXEL_SIZE;
    }
 
-   if (keyboard.down("left") && voxelCursorMesh.position.x > (-(VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("left") && voxelCursorMesh.position.x > (-(BUILDER_AXIS_VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.x -= VOXEL_SIZE;
    }
 
-   if (keyboard.down("down") && voxelCursorMesh.position.z < (((VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("down") && voxelCursorMesh.position.z < (((BUILDER_AXIS_VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.z += VOXEL_SIZE;
    }
 
-   if (keyboard.down("up") && voxelCursorMesh.position.z > (-(VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("up") && voxelCursorMesh.position.z > (-(BUILDER_AXIS_VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.z -= VOXEL_SIZE;
    }
 
-   if (keyboard.down("pageup") && voxelCursorMesh.position.y < (((VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("pageup") /* && voxelCursorMesh.position.y < (((BUILDER_AXIS_VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2 */) {
       voxelCursorMesh.position.y += VOXEL_SIZE;
       camera.position.y += VOXEL_SIZE;
       gridHelper.position.y += VOXEL_SIZE;
@@ -162,12 +162,6 @@ function render() {
    requestAnimationFrame(render);
    keyboardUpdate();
    renderer.render(scene, camera);
-}
-
-
-// Salvar arquivos
-function getSaveFileNameInput() {
-   return document.getElementById('savefileName');
 }
 
 function getLoadInput() {
@@ -214,10 +208,7 @@ document.getElementById('save-file-form').addEventListener('submit', function (e
       return;
    }
 
-   const input = getSaveFileNameInput();
-   const fileName = input.value ?? 'model.json';
-   downloadObject(positionedVoxelList, fileName);
-   input.value = '';
+   downloadObject(positionedVoxelList, EXPORT_FILENAME);
 });
 
 
@@ -259,6 +250,6 @@ document.getElementById('load-file-form').addEventListener('submit', function (e
       reader.readAsText(file);
       input.value = '';
    } else {
-      alert('Por favor né professor? Tem que ser um JSON!');
+      alert('Arquivo não possui uma extensão de JSON!');
    }
 });
