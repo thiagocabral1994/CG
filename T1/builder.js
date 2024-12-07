@@ -55,12 +55,12 @@ scene.add(planeMesh);
 const gridHelper = new THREE.GridHelper(VOXEL_SIZE * VOXEL_COUNT, VOXEL_COUNT, 0x444444, 0x888888);
 scene.add(gridHelper);
 
-function getVoxelCursorMeshMaterial() {
-   return new THREE.MeshBasicMaterial({ ...materialCatalog[cursorMaterials[activeMaterialIndex]], opacity: 0.5, transparent: true });
+function getVoxelCursorMeshMaterial(key = cursorMaterials[activeMaterialIndex]) {
+   return new THREE.MeshBasicMaterial({ ...materialCatalog[key], opacity: 0.5, transparent: true });
 }
 
-function getVoxelMeshMaterial() {
-   return new THREE.MeshBasicMaterial({ ...materialCatalog[cursorMaterials[activeMaterialIndex]] });
+function getVoxelMeshMaterial(key = cursorMaterials[activeMaterialIndex]) {
+   return new THREE.MeshBasicMaterial({ ...materialCatalog[key] });
 }
 
 // Create objects
@@ -88,6 +88,29 @@ camera.lookAt(camLook);
 var controls = new OrbitControls(camera, renderer.domElement);
 
 render();
+
+const getKey = (x, y, z) => `${x},${y},${z}`;
+
+function createVoxel(x, y, z, materialKey) {
+   const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+   const voxelMeshMaterial = getVoxelMeshMaterial(materialKey);
+   const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
+
+   voxelMap.set(getKey(x, y, z), {
+      mesh: voxelMesh,
+      materialKey,
+   });
+   voxelMesh.position.set(x, y, z);
+   scene.add(voxelMesh);
+}
+
+function clearAllMappedVoxels() {
+   voxelMap.entries().forEach(([key, data]) => {
+      const { mesh } = data;
+      scene.remove(mesh);
+      voxelMap.delete(key)
+   });
+}
 
 function keyboardUpdate() {
 
@@ -174,8 +197,12 @@ function render() {
 
 
 // Salvar arquivos
-function getSaveFormFileName() {
-   return document.getElementById('savefileName').value || 'model.json';
+function getSaveFileNameInput() {
+   return document.getElementById('savefileName');
+}
+
+function getLoadInput() {
+   return document.getElementById('loadFileName');
 }
 
 /**
@@ -224,21 +251,62 @@ document.getElementById('save-file-form').addEventListener('submit', function (e
    const positionedVoxelList = [];
    voxelMap.forEach(({ mesh, materialKey }) => {
       positionedVoxelList.push({
-         x: transformGridCoordinate(mesh.position.x),
-         y: transformGridCoordinate(mesh.position.y),
-         z: transformGridCoordinate(mesh.position.z),
+         gridX: transformGridCoordinate(mesh.position.x),
+         gridY: transformGridCoordinate(mesh.position.y),
+         gridZ: transformGridCoordinate(mesh.position.z),
          materialKey,
       });
    });
 
-   const fileName = getSaveFormFileName();
+   if (positionedVoxelList.length === 0) {
+      alert('Não foi possível baixar o modelo pois nenhum voxel foi adicionado!');
+      return;
+   }
+
+   const input = getSaveFileNameInput();
+   const fileName = input.value ?? 'model.json';
    downloadObject(positionedVoxelList, fileName);
+   input.value = '';
 });
+
 
 
 document.getElementById('load-file-form').addEventListener('submit', function (event) {
    // Importante para a página não recarregar
    event.preventDefault();
 
-   // TODO
+   const input = getLoadInput();
+   const file = input.files[0];
+
+   if (file && file.type === 'application/json') {
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+         try {
+            const jsonData = JSON.parse(e.target.result);
+            if (Array.isArray(jsonData)) {
+               clearAllMappedVoxels();
+               jsonData.forEach((voxelSchema) => {
+                  const { gridX, gridY, gridZ, materialKey } = voxelSchema;
+                  const x = transformVoxelCoordinate(gridX);
+                  const y = transformVoxelCoordinate(gridY);
+                  const z = transformVoxelCoordinate(gridZ);
+                  createVoxel(x, y, z, materialKey);
+               });
+            } else {
+               console.error('Erro no parsing do JSON. Não é uma lista!', jsonData);
+               alert('JSON inserido não é uma lista!');
+            }
+         } catch (error) {
+            console.error('Erro no parsing do JSON:', error);
+            alert('Erro ao ler JSON! (Verifique o console do navegador)');
+         }
+      };
+
+      // Read the file as text (UTF-8)
+      reader.readAsText(file);
+      input.value = '';
+   } else {
+      alert('Por favor né professor? Tem que ser um JSON!');
+   }
 });
