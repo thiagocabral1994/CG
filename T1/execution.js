@@ -4,12 +4,12 @@ import {
    initRenderer,
    onWindowResize
 } from "../libs/util/util.js";
-
+import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 let scene, renderer, camera, keyboard;
 const voxelMap = new Map();
 scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer("#f0f0f0");    // View function in util/utils
+renderer = initRenderer("#add9e6");    // View function in util/utils
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 
@@ -17,7 +17,7 @@ const VOXEL_SIZE = 5;
 const VOXEL_COUNT = 15;
 
 const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * VOXEL_COUNT, VOXEL_SIZE * VOXEL_COUNT);
-const planeMaterial = new THREE.MeshBasicMaterial({ color: 'lightblue' });
+const planeMaterial = new THREE.MeshBasicMaterial({ color: 'green' });
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -34,101 +34,84 @@ let camPos = new THREE.Vector3(0, 5 * VOXEL_SIZE, 11 * VOXEL_SIZE);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0.0, 0.0, 0.0);
 
+
+
+
 let activeMaterialIndex = 0;
 
 const materials = [
    { color: 'green' }, 
    { color: 'red' }, 
    { color: 'blue' },
+   { color: 'white' },
    { color: '#D2B48C' },
-   { color: 'purple' },
 ];
 
 function getVoxelMeshMaterial(index) {
    return new THREE.MeshBasicMaterial({ ...materials[index] });
 }
 
-
-//Desenha nivel zero
-function mapDraw()
+function createVoxel(x, y, z, c)
 {
-   debugger;
-   console.log("test");
-   const position = new THREE.Vector3(0, 0, 0);
-      
-      //Nível y=0: parte positiva do eixo x
-         for(position.x = 0; position.x <= 31; position.x++) 
-            {
-               for(position.z = -31; position.z <= 31; position.z++)
-               {
-                  const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-                  const voxelMeshMaterial = getVoxelMeshMaterial(0);  
-                  const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
-            
-                  voxelMap.set(position, voxelMesh);
-                  voxelMesh.position.set(position.x, position.y, position.z);
-                  scene.add(voxelMesh);
-               } 
-            } 
+   const position = new THREE.Vector3(x, y, z);
+   const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+   const voxelMeshMaterial = getVoxelMeshMaterial(c); 
+   const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
 
-       //Nível y=0: parte negativa do eixo x
-         for(position.x = 0; position.x >= -31; position.x--) 
-            {
-                for(position.z = -31; position.z <= 31; position.z++)
-                {
-                   const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-                   const voxelMeshMaterial = getVoxelMeshMaterial(0);
-                    const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
-               
-                    voxelMap.set(position, voxelMesh);
-                    voxelMesh.position.set(position.x, position.y, position.z);
-                  scene.add(voxelMesh);
-               } 
-            } 
-
-      //Nível y=1: parte positiva do eixo x
-      for(position.x = 10; position.x <= 31; position.x++) 
-         {
-            for(position.z = -31; position.z <= 31; position.z++)
-            {
-               const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-               const voxelMeshMaterial = getVoxelMeshMaterial(3); 
-               const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
-         
-               voxelMap.set(position, voxelMesh);
-               voxelMesh.position.set(position.x, position.y, position.z);
-               scene.add(voxelMesh);
-            } 
-         } 
-
-      //Nível y=1: parte negativa do eixo x
-      for(position.x = -10; position.x >= -31; position.x--) 
-         {
-            for(position.z = -31; position.z <= 31; position.z++)
-            {
-               const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-               const voxelMeshMaterial = getVoxelMeshMaterial(3); 
-               const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
-         
-               voxelMap.set(position, voxelMesh);
-               voxelMesh.position.set(position.x, position.y, position.z);
-               scene.add(voxelMesh);
-            } 
-         } 
+   voxelMesh.position.set(x, y, z);
+   scene.add(voxelMesh);
 }
 
+function mapDraw() {
+    let leftStartX = -10; // Ponto inicial  esquerdo
+    let rightStartX = 10; // Ponto inicial direito
+    const startZ = -31; // Início em Z
+    const endZ = 31; // Fim em Z
+    const xMin = -31; // Limite mínimo de x
+    const xMax = 31; // Limite máximo de x
+
+    for (let z = startZ; z <= endZ; z++) {
+        const variation = Math.sin(z / 10) * 5; 
+
+        for (let x = xMin; x <= leftStartX + Math.round(variation); x++) {
+            createVoxel(x, 2.5, z, 4); 
+        }
+
+        
+        for (let x = rightStartX + Math.round(variation); x <= xMax; x++) {
+            createVoxel(x, 2.5, z, 4); 
+        }
+    }
+
+     leftStartX = -28; 
+     rightStartX = 28; 
+    for (let z = startZ; z <= endZ; z++) {
+      const variation = Math.sin(z / 10) * 2; 
+
+     
+      for (let x = xMin; x <= leftStartX + Math.round(variation); x++) {
+          createVoxel(x, 7.5, z, 3); 
+      }
+
+     
+      for (let x = rightStartX + Math.round(variation); x <= xMax; x++) {
+          createVoxel(x, 7.5, z, 3); 
+      }
+   }
+  }
 
 // Main camera
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.copy(camPos);
 camera.up.copy(camUp);
 camera.lookAt(camLook);
+var controls = new OrbitControls(camera, renderer.domElement);
 
+mapDraw();
 render();
 
 function render() {
    requestAnimationFrame(render);
    // keyboardUpdate();  
    renderer.render(scene, camera);
-   mapDraw();
 }
