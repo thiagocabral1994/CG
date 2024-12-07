@@ -5,7 +5,10 @@ import {
    onWindowResize
 } from "../libs/util/util.js";
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
-
+import { VoxelTransformer } from './components/VoxelTransformer.js';
+import { BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE, MATERIAL, EXPORT_FILENAME } from './global/constants.js';
+import { VoxelMaterial } from './components/material.js';
+import { VoxelBuilder } from './components/VoxelBuilder.js';
 
 let scene, renderer, camera, keyboard;
 const voxelMap = new Map();
@@ -14,33 +17,12 @@ renderer = initRenderer("#f0f0f0");    // View function in util/utils
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 
-const VOXEL_SIZE = 5;
-const VOXEL_COUNT = 10;
-
-export const MATERIAL = {
-   M1: "M1",
-   M2: "M2",
-   M3: "M3",
-   M4: "M4",
-   M5: "M5",
-   BUILDER_FLOOR: "BUILDER_FLOOR",
-}
-
-const materialCatalog = {
-   [MATERIAL.M1]: { color: 'green' },
-   [MATERIAL.M2]: { color: 'red' },
-   [MATERIAL.M3]: { color: 'blue' },
-   [MATERIAL.M4]: { color: 'yellow' },
-   [MATERIAL.M5]: { color: 'purple' },
-   [MATERIAL.BUILDER_FLOOR]: { color: 'lightblue' },
-};
-
 const cursorMaterials = [MATERIAL.M1, MATERIAL.M2, MATERIAL.M3, MATERIAL.M4, MATERIAL.M5];
 
 let activeMaterialIndex = 0;
 
-const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * VOXEL_COUNT, VOXEL_SIZE * VOXEL_COUNT);
-const planeMaterial = new THREE.MeshBasicMaterial(materialCatalog[MATERIAL.BUILDER_FLOOR]);
+const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT);
+const planeMaterial = new THREE.MeshBasicMaterial(VoxelMaterial.catalog[MATERIAL.BUILDER_FLOOR]);
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -52,20 +34,12 @@ planeMesh.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1
 planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1   
 scene.add(planeMesh);
 
-const gridHelper = new THREE.GridHelper(VOXEL_SIZE * VOXEL_COUNT, VOXEL_COUNT, 0x444444, 0x888888);
+const gridHelper = new THREE.GridHelper(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, BUILDER_AXIS_VOXEL_COUNT, 0x444444, 0x888888);
 scene.add(gridHelper);
-
-function getVoxelCursorMeshMaterial(key = cursorMaterials[activeMaterialIndex]) {
-   return new THREE.MeshBasicMaterial({ ...materialCatalog[key], opacity: 0.5, transparent: true });
-}
-
-function getVoxelMeshMaterial(key = cursorMaterials[activeMaterialIndex]) {
-   return new THREE.MeshBasicMaterial({ ...materialCatalog[key] });
-}
 
 // Create objects
 const voxelCursorGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-const voxelCursorMaterial = getVoxelCursorMeshMaterial();
+const voxelCursorMaterial = VoxelMaterial.getCursorMeshMaterial(cursorMaterials[activeMaterialIndex]);
 const voxelCursorMesh = new THREE.Mesh(voxelCursorGeometry, voxelCursorMaterial);
 voxelCursorMesh.position.set((-5 * VOXEL_SIZE) + VOXEL_SIZE / 2, 0 + VOXEL_SIZE / 2, 0 + VOXEL_SIZE / 2);
 scene.add(voxelCursorMesh);
@@ -89,18 +63,14 @@ var controls = new OrbitControls(camera, renderer.domElement);
 
 render();
 
-const getKey = (x, y, z) => `${x},${y},${z}`;
+const getKey = (position) => `${position.x},${position.y},${position.z}`;
 
-function createVoxel(x, y, z, materialKey) {
-   const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-   const voxelMeshMaterial = getVoxelMeshMaterial(materialKey);
-   const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
-
-   voxelMap.set(getKey(x, y, z), {
+function addVoxelToScene(position, materialKey) {
+   const voxelMesh = VoxelBuilder.createVoxelMesh(position, materialKey);
+   voxelMap.set(getKey(position), {
       mesh: voxelMesh,
       materialKey,
    });
-   voxelMesh.position.set(x, y, z);
    scene.add(voxelMesh);
 }
 
@@ -113,7 +83,6 @@ function clearAllMappedVoxels() {
 }
 
 function keyboardUpdate() {
-
    keyboard.update();
 
    if (keyboard.down("Q")) {
@@ -121,7 +90,7 @@ function keyboardUpdate() {
       const key = `${x},${y},${z}`;
       if (!voxelMap.has(key)) {
          const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-         const voxelMeshMaterial = getVoxelMeshMaterial();
+         const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(cursorMaterials[activeMaterialIndex]);
          const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
 
          voxelMap.set(key, {
@@ -143,23 +112,23 @@ function keyboardUpdate() {
       }
    }
 
-   if (keyboard.down("right") && voxelCursorMesh.position.x < (((VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("right") && voxelCursorMesh.position.x < (((BUILDER_AXIS_VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.x += VOXEL_SIZE;
    }
 
-   if (keyboard.down("left") && voxelCursorMesh.position.x > (-(VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("left") && voxelCursorMesh.position.x > (-(BUILDER_AXIS_VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.x -= VOXEL_SIZE;
    }
 
-   if (keyboard.down("down") && voxelCursorMesh.position.z < (((VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("down") && voxelCursorMesh.position.z < (((BUILDER_AXIS_VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.z += VOXEL_SIZE;
    }
 
-   if (keyboard.down("up") && voxelCursorMesh.position.z > (-(VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("up") && voxelCursorMesh.position.z > (-(BUILDER_AXIS_VOXEL_COUNT / 2) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
       voxelCursorMesh.position.z -= VOXEL_SIZE;
    }
 
-   if (keyboard.down("pageup") && voxelCursorMesh.position.y < (((VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
+   if (keyboard.down("pageup") /* && voxelCursorMesh.position.y < (((BUILDER_AXIS_VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2 */) {
       voxelCursorMesh.position.y += VOXEL_SIZE;
       camera.position.y += VOXEL_SIZE;
       gridHelper.position.y += VOXEL_SIZE;
@@ -173,12 +142,12 @@ function keyboardUpdate() {
 
    if (keyboard.down(",")) {
       activeMaterialIndex = activeMaterialIndex > 0 ? activeMaterialIndex - 1 : cursorMaterials.length - 1;
-      voxelCursorMesh.material = getVoxelCursorMeshMaterial();
+      voxelCursorMesh.material = VoxelMaterial.getCursorMeshMaterial(cursorMaterials[activeMaterialIndex]);
    }
 
    if (keyboard.down(".")) {
       activeMaterialIndex = activeMaterialIndex < cursorMaterials.length - 1 ? activeMaterialIndex + 1 : 0;
-      voxelCursorMesh.material = getVoxelCursorMeshMaterial();
+      voxelCursorMesh.material = VoxelMaterial.getCursorMeshMaterial(cursorMaterials[activeMaterialIndex]);
    }
    // reseta camera apertando R
    if (keyboard.down("R")) {
@@ -193,12 +162,6 @@ function render() {
    requestAnimationFrame(render);
    keyboardUpdate();
    renderer.render(scene, camera);
-}
-
-
-// Salvar arquivos
-function getSaveFileNameInput() {
-   return document.getElementById('savefileName');
 }
 
 function getLoadInput() {
@@ -226,24 +189,6 @@ function downloadObject(object, fileName) {
    URL.revokeObjectURL(link.href);
 }
 
-/**
- * Converte o valor de uma coordenada adicionando a dimensão do voxel
- * 
- * @param {number} baseCoordinate 
- */
-function transformVoxelCoordinate(baseCoordinate) {
-   return baseCoordinate * VOXEL_SIZE + (VOXEL_SIZE / 2);
-}
-
-/**
- * Converte o valor de uma coordenada retirando o valor da dimensão do voxel
- * 
- * @param {number} coordinate 
- */
-function transformGridCoordinate(coordinate) {
-   return (coordinate - (VOXEL_SIZE / 2)) / VOXEL_SIZE;
-}
-
 document.getElementById('save-file-form').addEventListener('submit', function (event) {
    // Importante para a página não recarregar
    event.preventDefault();
@@ -251,9 +196,9 @@ document.getElementById('save-file-form').addEventListener('submit', function (e
    const positionedVoxelList = [];
    voxelMap.forEach(({ mesh, materialKey }) => {
       positionedVoxelList.push({
-         gridX: transformGridCoordinate(mesh.position.x),
-         gridY: transformGridCoordinate(mesh.position.y),
-         gridZ: transformGridCoordinate(mesh.position.z),
+         gridX: VoxelTransformer.transformGridCoordinate(mesh.position.x),
+         gridY: VoxelTransformer.transformGridCoordinate(mesh.position.y),
+         gridZ: VoxelTransformer.transformGridCoordinate(mesh.position.z),
          materialKey,
       });
    });
@@ -263,10 +208,7 @@ document.getElementById('save-file-form').addEventListener('submit', function (e
       return;
    }
 
-   const input = getSaveFileNameInput();
-   const fileName = input.value ?? 'model.json';
-   downloadObject(positionedVoxelList, fileName);
-   input.value = '';
+   downloadObject(positionedVoxelList, EXPORT_FILENAME);
 });
 
 
@@ -288,10 +230,11 @@ document.getElementById('load-file-form').addEventListener('submit', function (e
                clearAllMappedVoxels();
                jsonData.forEach((voxelSchema) => {
                   const { gridX, gridY, gridZ, materialKey } = voxelSchema;
-                  const x = transformVoxelCoordinate(gridX);
-                  const y = transformVoxelCoordinate(gridY);
-                  const z = transformVoxelCoordinate(gridZ);
-                  createVoxel(x, y, z, materialKey);
+                  const x = VoxelTransformer.transformVoxelCoordinate(gridX);
+                  const y = VoxelTransformer.transformVoxelCoordinate(gridY);
+                  const z = VoxelTransformer.transformVoxelCoordinate(gridZ);
+                  const schemaScalarPosition = new THREE.Vector3(x, y, z);
+                  addVoxelToScene(schemaScalarPosition, materialKey);
                });
             } else {
                console.error('Erro no parsing do JSON. Não é uma lista!', jsonData);
@@ -307,6 +250,6 @@ document.getElementById('load-file-form').addEventListener('submit', function (e
       reader.readAsText(file);
       input.value = '';
    } else {
-      alert('Por favor né professor? Tem que ser um JSON!');
+      alert('Arquivo não possui uma extensão de JSON!');
    }
 });
