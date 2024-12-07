@@ -207,6 +207,8 @@ function keyboardUpdate() {
       camera.up.copy(initialCamUp);
       camera.lookAt(initialCamLook);
       controls.reset();
+      gridHelper.position.y = 0;
+      voxelCursorMesh.position.y = VOXEL_SIZE/2;
    }
 }
 
