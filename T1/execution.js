@@ -63,12 +63,12 @@ function createVoxel(x, y, z, c)
 }
 
 function mapDraw() {
-    let leftStartX = -10; // Ponto inicial  esquerdo
-    let rightStartX = 10; // Ponto inicial direito
-    const startZ = -31; // Início em Z
-    const endZ = 31; // Fim em Z
-    const xMin = -31; // Limite mínimo de x
-    const xMax = 31; // Limite máximo de x
+    let leftStartX = -10; 
+    let rightStartX = 10; 
+    const startZ = -31; 
+    const endZ = 31; 
+    const xMin = -31; 
+    const xMax = 31; 
 
     for (let z = startZ; z <= endZ; z++) {
         const variation = Math.sin(z / 10) * 5; 
