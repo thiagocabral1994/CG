@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import KeyboardState from '../libs/util/KeyboardState.js'
 import {
    initRenderer,
+   initDefaultBasicLight,
    onWindowResize
 } from "../libs/util/util.js";
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
@@ -10,11 +11,12 @@ import { BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE, MATERIAL, EXPORT_FILENAME } from 
 import { VoxelMaterial } from './components/material.js';
 import { VoxelBuilder } from './components/VoxelBuilder.js';
 
-let scene, renderer, camera, keyboard;
+let scene, renderer, camera, light, keyboard;
 const voxelMap = new Map();
 const heightVoxelMap = new Map();
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#f0f0f0");    // View function in util/utils
+light = initDefaultBasicLight(scene);
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 
@@ -23,7 +25,7 @@ const cursorMaterials = [MATERIAL.M1, MATERIAL.M2, MATERIAL.M3, MATERIAL.M4, MAT
 let activeMaterialIndex = 0;
 
 const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT);
-const planeMaterial = new THREE.MeshBasicMaterial(VoxelMaterial.catalog[MATERIAL.BUILDER_FLOOR]);
+const planeMaterial = new THREE.MeshLambertMaterial(VoxelMaterial.catalog[MATERIAL.BUILDER_FLOOR]);
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -77,7 +79,7 @@ function addSpheresBelow(position) {
       }
 
       const sphereGeometry = new THREE.SphereGeometry(VOXEL_SIZE / 4, VOXEL_SIZE * 6, VOXEL_SIZE * 3);
-      const sphereMaterial = new THREE.MeshBasicMaterial({ color: "black", opacity: 0.10, transparent: true });
+      const sphereMaterial = new THREE.MeshLambertMaterial({ color: "black", opacity: 0.10, transparent: true });
       const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
       sphereMesh.position.set(spherePosition.x, spherePosition.y, spherePosition.z);
       heightVoxelMap.set(sphereKey, sphereMesh);

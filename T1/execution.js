@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import KeyboardState from '../libs/util/KeyboardState.js'
 import {
     initRenderer,
+    initDefaultBasicLight,
     onWindowResize
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
@@ -10,13 +11,14 @@ import { VoxelTransformer } from './components/VoxelTransformer.js';
 import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE_SLOTS } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
 
-let scene, renderer, keyboard;
+let scene, renderer, light, keyboard;
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#add9e6");    // View function in util/utils
+light = initDefaultBasicLight(scene);
 keyboard = new KeyboardState();
 
 const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT, VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT);
-const planeMaterial = new THREE.MeshBasicMaterial(VoxelMaterial.catalog[MATERIAL.EXEC_FLOOR_0]);
+const planeMaterial = new THREE.MeshLambertMaterial(VoxelMaterial.catalog[MATERIAL.EXEC_FLOOR_0]);
 
 const mat4 = new THREE.Matrix4(); // Aux mat4 matrix   
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -36,10 +38,6 @@ function createVoxel(x, y, z, key) {
     voxelMesh.position.set(x, y, z);
     scene.add(voxelMesh);
 }
-
-// Temp
-const gridHelper = new THREE.GridHelper(VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT, EXEC_AXIS_VOXEL_COUNT, 0x444444, 0x888888);
-scene.add(gridHelper);
 
 async function addTree(treeKey, mapPosition) {
     const response = await fetch(`./assets/trees/${treeKey}.json`);
