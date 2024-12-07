@@ -12,6 +12,7 @@ import { VoxelBuilder } from './components/VoxelBuilder.js';
 
 let scene, renderer, camera, keyboard;
 const voxelMap = new Map();
+const heightVoxelMap = new Map();
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#f0f0f0");    // View function in util/utils
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
@@ -65,51 +66,100 @@ render();
 
 const getKey = (position) => `${position.x},${position.y},${position.z}`;
 
-function addVoxelToScene(position, materialKey) {
+function addSpheresBelow(position) {
+   const { x, y, z } = position;
+   for (let i = y; i >= 0; i = i - VOXEL_SIZE) {
+      const spherePosition = new THREE.Vector3(x, i, z);
+      const sphereKey = getKey(spherePosition);
+      if (heightVoxelMap.has(sphereKey) || voxelMap.has(sphereKey)) {
+         // Não precisa indicar com a esfera aonde já possui uma representação!
+         continue;
+      }
+
+      const sphereGeometry = new THREE.SphereGeometry(VOXEL_SIZE / 4, VOXEL_SIZE * 6, VOXEL_SIZE * 3);
+      const sphereMaterial = new THREE.MeshBasicMaterial({ color: "black", opacity: 0.10, transparent: true });
+      const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      sphereMesh.position.set(spherePosition.x, spherePosition.y, spherePosition.z);
+      heightVoxelMap.set(sphereKey, sphereMesh);
+      scene.add(sphereMesh);
+   }
+}
+
+function removeSpheresBelow(position) {
+   const { x, y, z } = position;
+   for (let i = y; i >= 0; i = i - VOXEL_SIZE) {
+      const spherePosition = new THREE.Vector3(x, i, z);
+      const sphereKey = getKey(spherePosition);
+      if (voxelMap.has(sphereKey)) {
+         // Se encontramos outro Voxel, assumimos que qualquer esfera abaixo pertence a ele e encerramos o loop.
+         break;
+      }
+      const sphereMeshToRemove = heightVoxelMap.get(sphereKey);
+      if (sphereMeshToRemove) {
+         scene.remove(sphereMeshToRemove);
+         heightVoxelMap.delete(sphereKey);
+      }
+   }
+}
+
+function addVoxelToScene(position, materialKey = cursorMaterials[activeMaterialIndex]) {
    const voxelMesh = VoxelBuilder.createVoxelMesh(position, materialKey);
+   const key = getKey(position);
+   // Precisamos remover a esfera posicionada, caso ela exista!
+   const sphereMesh = heightVoxelMap.get(key);
+   if (sphereMesh) {
+      scene.remove(sphereMesh);
+      heightVoxelMap.delete(key);
+   }
    voxelMap.set(getKey(position), {
       mesh: voxelMesh,
       materialKey,
    });
    scene.add(voxelMesh);
+   addSpheresBelow(voxelMesh.position);
 }
 
 function clearAllMappedVoxels() {
    voxelMap.entries().forEach(([key, data]) => {
       const { mesh } = data;
       scene.remove(mesh);
-      voxelMap.delete(key)
+      voxelMap.delete(key);
    });
+   heightVoxelMap.entries().forEach(([key, mesh]) => {
+      scene.remove(mesh);
+      heightVoxelMap.delete(key);
+   });
+}
+
+function removeVoxelFromScene(position) {
+   const { x, y, z } = position;
+      const cursorKey = getKey(position);
+      const voxelToRemove = voxelMap.get(cursorKey);
+      if (voxelToRemove) {
+         scene.remove(voxelToRemove.mesh);
+         voxelMap.delete(cursorKey);
+         const abovePosition = new THREE.Vector3(x, y + VOXEL_SIZE, z);
+         const aboveKey = getKey(abovePosition);
+         // Precisamos decidir se ainda há um voxel acima ou não.
+         // Caso haja, precisamos completar as esferas.
+         // Caso não haja, podemos remover as esferas embaixo subsequentes.
+         if (heightVoxelMap.has(aboveKey) || voxelMap.has(aboveKey)) {
+            addSpheresBelow(abovePosition);
+         } else {
+            removeSpheresBelow(position)
+         }
+      }
 }
 
 function keyboardUpdate() {
    keyboard.update();
 
-   if (keyboard.down("Q")) {
-      const { x, y, z } = voxelCursorMesh.position;
-      const key = `${x},${y},${z}`;
-      if (!voxelMap.has(key)) {
-         const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
-         const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(cursorMaterials[activeMaterialIndex]);
-         const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
-
-         voxelMap.set(key, {
-            mesh: voxelMesh,
-            materialKey: cursorMaterials[activeMaterialIndex],
-         });
-         voxelMesh.position.set(x, y, z);
-         scene.add(voxelMesh);
-      }
+   if (keyboard.down("Q") && !voxelMap.has(getKey(voxelCursorMesh.position))) {
+      addVoxelToScene(voxelCursorMesh.position);
    }
 
    if (keyboard.down("E")) {
-      const { x, y, z } = voxelCursorMesh.position;
-      const key = `${x},${y},${z}`;
-      const voxelToRemove = voxelMap.get(key);
-      if (voxelToRemove) {
-         scene.remove(voxelToRemove.mesh);
-         voxelMap.delete(key);
-      }
+      removeVoxelFromScene(voxelCursorMesh.position);
    }
 
    if (keyboard.down("right") && voxelCursorMesh.position.x < (((BUILDER_AXIS_VOXEL_COUNT / 2) - 1) * VOXEL_SIZE) + VOXEL_SIZE / 2) {
@@ -154,7 +204,7 @@ function keyboardUpdate() {
       camera.position.copy(initialCamPos);
       camera.up.copy(initialCamUp);
       camera.lookAt(initialCamLook);
-      controls.update();
+      controls.reset();
    }
 }
 
