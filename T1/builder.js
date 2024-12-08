@@ -44,8 +44,12 @@ scene.add(gridHelper);
 const voxelCursorGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
 const voxelCursorMaterial = VoxelMaterial.getCursorMeshMaterial(cursorMaterials[activeMaterialIndex]);
 const voxelCursorMesh = new THREE.Mesh(voxelCursorGeometry, voxelCursorMaterial);
+const voxelCursorWireframeMaterial= VoxelMaterial.getCursorWireframeMaterial();
+const voxelCursorWireframeMesh = new THREE.Mesh(voxelCursorGeometry, voxelCursorWireframeMaterial);
 voxelCursorMesh.position.set((-5 * VOXEL_SIZE) + VOXEL_SIZE / 2, 0 + VOXEL_SIZE / 2, 0 + VOXEL_SIZE / 2);
+voxelCursorWireframeMesh.position.copy(voxelCursorMesh.position);
 scene.add(voxelCursorMesh);
+scene.add(voxelCursorWireframeMesh);
 
 
 let camPos = new THREE.Vector3(0, 5 * VOXEL_SIZE, 11 * VOXEL_SIZE);
@@ -210,6 +214,9 @@ function keyboardUpdate() {
       gridHelper.position.y = 0;
       voxelCursorMesh.position.y = VOXEL_SIZE/2;
    }
+
+   // Independente da posição do cursor, o wireframe deve ser atualizado para estar na mesma posição.
+   voxelCursorWireframeMesh.position.copy(voxelCursorMesh.position);
 }
 
 function render() {
