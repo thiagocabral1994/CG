@@ -13,7 +13,6 @@ export const MATERIAL = {
     EXEC_FLOOR_0: "EXEC_FLOOR_0",
     EXEC_FLOOR_1: "EXEC_FLOOR_1",
     EXEC_FLOOR_2: "EXEC_FLOOR_2",
-    PLACEHOLDER: "PLACEHOLDER",
 }
 
 export const TREE = {
