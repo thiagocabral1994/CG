@@ -12,7 +12,6 @@ export const VoxelMaterial = {
         [MATERIAL.EXEC_FLOOR_0]: { color: 'lightgreen' },
         [MATERIAL.EXEC_FLOOR_1]: { color: '#D2B48C' },
         [MATERIAL.EXEC_FLOOR_2]: { color: 'purple' },
-        [MATERIAL.PLACEHOLDER]: { color: 'gray' },
     },
     getCursorMeshMaterial: (key) => {
         return new THREE.MeshLambertMaterial({ ...VoxelMaterial.catalog[key], opacity: 0.5, transparent: true });
