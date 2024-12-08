@@ -1,8 +1,5 @@
 import * as THREE from 'three';
 import { MATERIAL } from "../global/constants.js";
-import {
-    setDefaultMaterial
-} from "../../libs/util/util.js";
 
 export const VoxelMaterial = {
     catalog: {
@@ -19,6 +16,9 @@ export const VoxelMaterial = {
     },
     getCursorMeshMaterial: (key) => {
         return new THREE.MeshLambertMaterial({ ...VoxelMaterial.catalog[key], opacity: 0.5, transparent: true });
+    },
+    getCursorWireframeMaterial: () => {
+        return new THREE.MeshLambertMaterial({ color: "black", wireframe: true });
     },
     getMeshMaterial: (key) => {
         return new THREE.MeshLambertMaterial({ ...VoxelMaterial.catalog[key] });
