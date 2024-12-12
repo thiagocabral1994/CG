@@ -11,12 +11,18 @@ import { VoxelTransformer } from './components/VoxelTransformer.js';
 import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE_SLOTS } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
 
+// Declaração das variáveis globais
 let scene, renderer, light, keyboard;
-scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer("#add9e6");    // View function in util/utils
+// Criamos a cena
+scene = new THREE.Scene();
+// Iniciamos o renderer
+renderer = initRenderer("#add9e6");
+// Iniciamos a luz basica da cena
 light = initDefaultBasicLight(scene);
+// Iniciamos o controlador de teclado
 keyboard = new KeyboardState();
 
+// Criamos o plano. O plano sempre inicia na posição XY, então precisamos rotacionar para posição XZ
 const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT, VOXEL_SIZE * EXEC_AXIS_VOXEL_COUNT);
 const planeMaterial = new THREE.MeshLambertMaterial(VoxelMaterial.catalog[MATERIAL.EXEC_FLOOR_0]);
 
@@ -30,6 +36,7 @@ planeMesh.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1
 planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1   
 scene.add(planeMesh);
 
+// Posiciona um voxel na cena
 function createVoxel(x, y, z, key) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
     const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(key);
@@ -39,6 +46,7 @@ function createVoxel(x, y, z, key) {
     scene.add(voxelMesh);
 }
 
+// Add uma árvore
 async function addTree(treeKey, mapPosition) {
     const response = await fetch(`./assets/trees/${treeKey}.json`);
     const tree1VoxelList = await response.json();
@@ -50,6 +58,7 @@ async function addTree(treeKey, mapPosition) {
     });
 }
 
+// Posiciona todos os voxels do cenário no eixo X
 function drawXAxis(minX, maxX, y, z, matKey) {
     for (let x = minX; x <= maxX; x++) {
         createVoxel(
@@ -62,6 +71,7 @@ function drawXAxis(minX, maxX, y, z, matKey) {
 
 }
 
+// Renderiza o vale de voxels
 function renderValley() {
     let leftStartX = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 7);
     let rightStartX = Math.floor(EXEC_AXIS_VOXEL_COUNT / 7);
@@ -95,15 +105,17 @@ function renderValley() {
     return Promise.all(promises);
 }
 
-// Orbital camera
+
 const camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 
+// Orbital camera e controles
 const orbitalCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 orbitalCamera.position.copy(new THREE.Vector3(20 * VOXEL_SIZE, 20 * VOXEL_SIZE, 46 * VOXEL_SIZE));
 orbitalCamera.up.copy(camUp);
 orbitalCamera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 const orbitalControls = new OrbitControls(orbitalCamera, renderer.domElement);
 
+// Primeira pessoa e controles
 const firstPersonCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 firstPersonCamera.position.copy(new THREE.Vector3(0, VOXEL_SIZE / 2, 0));
 firstPersonCamera.up.copy(camUp);
@@ -111,13 +123,13 @@ firstPersonCamera.lookAt(new THREE.Vector3(VOXEL_SIZE, VOXEL_SIZE / 2, VOXEL_SIZ
 const firstPersonControls = new PointerLockControls(firstPersonCamera, renderer.domElement);
 scene.add(firstPersonControls.getObject())
 
-
+// Event listener de resize para ambas as cameras
 window.addEventListener('resize', function () { onWindowResize(orbitalCamera, renderer) }, false);
 window.addEventListener('resize', function () { onWindowResize(firstPersonCamera, renderer) }, false);
 
 let isFirstPersonCamera = false;
 
-// swith between cameras
+// Event listener pra trocar as câmeras
 window.addEventListener('keydown', (event) => {
     if (event.key === 'c') { // C 
         isFirstPersonCamera = !isFirstPersonCamera;
@@ -133,7 +145,7 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
-// movement controls
+// Parametros do controle de movimento para primeira pessoa
 const speed = 20;
 let moveForward = false;
 let moveBackward = false;

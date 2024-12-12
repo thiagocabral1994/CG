@@ -1,5 +1,6 @@
 import { VOXEL_SIZE } from "../global/constants.js";
 
+// Objeto responsavel por fazer as transformações lineares.
 export const VoxelTransformer = {
     /**
      * Converte o valor de uma coordenada adicionando a dimensão do voxel

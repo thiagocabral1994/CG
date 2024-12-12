@@ -11,19 +11,31 @@ import { BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE, MATERIAL, EXPORT_FILENAME } from 
 import { VoxelMaterial } from './components/material.js';
 import { VoxelBuilder } from './components/VoxelBuilder.js';
 
+
+// Declaração das variáveis globais
 let scene, renderer, camera, light, keyboard;
+// Declaramos o mapa de voxels posicionados no ambiente.
 const voxelMap = new Map();
+// Declaramos o mapa esferas posicionadas abaixo do voxel
 const heightVoxelMap = new Map();
-scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer("#f0f0f0");    // View function in util/utils
+// Criamos a cena
+scene = new THREE.Scene();
+// Iniciamos o renderer
+renderer = initRenderer("#f0f0f0");
+// Iniciamos a luz basica da cena
 light = initDefaultBasicLight(scene);
+// Adicionamos um listener pra ajustar a câmera no resize da página
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
+// Iniciamos o controlador de teclado
 keyboard = new KeyboardState();
 
+// Criamos a lista de materiais selecionaveis.
 const cursorMaterials = [MATERIAL.M1, MATERIAL.M2, MATERIAL.M3, MATERIAL.M4, MATERIAL.M5];
 
+// Declaramos o índice do atual material selecionado
 let activeMaterialIndex = 0;
 
+// Criamos o plano. O plano sempre inicia na posição XY, então precisamos rotacionar para posição XZ
 const planeGeometry = new THREE.PlaneGeometry(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT);
 const planeMaterial = new THREE.MeshLambertMaterial(VoxelMaterial.catalog[MATERIAL.BUILDER_FLOOR]);
 
@@ -37,10 +49,11 @@ planeMesh.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1
 planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1   
 scene.add(planeMesh);
 
+// Criamos um grid para auxiliar na movimentação no plano XZ
 const gridHelper = new THREE.GridHelper(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, BUILDER_AXIS_VOXEL_COUNT, 0x444444, 0x888888);
 scene.add(gridHelper);
 
-// Create objects
+// Criamos o cursor - 1 Mesh para o cubo transparente, outro para o wireframe.
 const voxelCursorGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
 const voxelCursorMaterial = VoxelMaterial.getCursorMeshMaterial(cursorMaterials[activeMaterialIndex]);
 const voxelCursorMesh = new THREE.Mesh(voxelCursorGeometry, voxelCursorMaterial);
@@ -51,7 +64,7 @@ voxelCursorWireframeMesh.position.copy(voxelCursorMesh.position);
 scene.add(voxelCursorMesh);
 scene.add(voxelCursorWireframeMesh);
 
-
+// Iniciamos a câmera
 let camPos = new THREE.Vector3(0, 5 * VOXEL_SIZE, 11 * VOXEL_SIZE);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0.0, 0.0, 0.0);
@@ -70,8 +83,10 @@ var controls = new OrbitControls(camera, renderer.domElement);
 
 render();
 
+// Nossa chave do mapa é sempre uma string da união de x,y,z.
 const getKey = (position) => `${position.x},${position.y},${position.z}`;
 
+// Esse método adiciona esferas embaixo de um voxel para indicar a altura.
 function addSpheresBelow(position) {
    const { x, y, z } = position;
    for (let i = y; i >= 0; i = i - VOXEL_SIZE) {
@@ -91,6 +106,7 @@ function addSpheresBelow(position) {
    }
 }
 
+// Esse método remove esferas embaixo do cubo a ser removido.
 function removeSpheresBelow(position) {
    const { x, y, z } = position;
    for (let i = y; i >= 0; i = i - VOXEL_SIZE) {
@@ -108,6 +124,7 @@ function removeSpheresBelow(position) {
    }
 }
 
+// Método para adicionar o voxel na cena. Nele Adicionamos o voxel à cena e também ao voxelMap.
 function addVoxelToScene(position, materialKey = cursorMaterials[activeMaterialIndex]) {
    const voxelMesh = VoxelBuilder.createVoxelMesh(position, materialKey);
    const key = getKey(position);
@@ -125,6 +142,7 @@ function addVoxelToScene(position, materialKey = cursorMaterials[activeMaterialI
    addSpheresBelow(voxelMesh.position);
 }
 
+// Esse método é pra limpar todos os voxels colocados no builder
 function clearAllMappedVoxels() {
    voxelMap.entries().forEach(([key, data]) => {
       const { mesh } = data;
@@ -137,6 +155,7 @@ function clearAllMappedVoxels() {
    });
 }
 
+// Esse método é pra limpar um voxel da cena dada sua posição.
 function removeVoxelFromScene(position) {
    const { x, y, z } = position;
       const cursorKey = getKey(position);
@@ -256,6 +275,7 @@ document.getElementById('save-file-form').addEventListener('submit', function (e
 
    const positionedVoxelList = [];
    voxelMap.forEach(({ mesh, materialKey }) => {
+      // Aqui fazemos a transformada linear para a escala em Grid.
       positionedVoxelList.push({
          gridX: VoxelTransformer.transformGridCoordinate(mesh.position.x),
          gridY: VoxelTransformer.transformGridCoordinate(mesh.position.y),
@@ -291,6 +311,7 @@ document.getElementById('load-file-form').addEventListener('submit', function (e
                clearAllMappedVoxels();
                jsonData.forEach((voxelSchema) => {
                   const { gridX, gridY, gridZ, materialKey } = voxelSchema;
+                  // Aqui fazemos a transformada linear para a escala em Voxel.
                   const x = VoxelTransformer.transformVoxelCoordinate(gridX);
                   const y = VoxelTransformer.transformVoxelCoordinate(gridY);
                   const z = VoxelTransformer.transformVoxelCoordinate(gridZ);

@@ -1,8 +1,15 @@
 import * as THREE from 'three';
 
+// Tamanho do Voxel
 export const VOXEL_SIZE = 5;
+
+// Quantidade de voxels em um eixo no ambiente do builder
 export const BUILDER_AXIS_VOXEL_COUNT = 10;
+
+// Quantidade de voxels em um eixo no ambiente de execução
 export const EXEC_AXIS_VOXEL_COUNT = 35;
+
+// IDs dos materiais.
 export const MATERIAL = {
     M1: "M1",
     M2: "M2",
@@ -16,6 +23,8 @@ export const MATERIAL = {
     PLACEHOLDER: "PLACEHOLDER",
 }
 
+
+// Nome dos arquivos de árvore sem a extensão.
 export const TREE = {
     T1: "tree_1",
     T2: "tree_2",
@@ -24,6 +33,7 @@ export const TREE = {
     T5: "tree_5",
 }
 
+// Lista das posições onde serão colocadas cada árvore identificada.
 export const TREE_SLOTS = [
     { tree: TREE.T2, position: new THREE.Vector3(-6, 1, -10) },
     { tree: TREE.T4, position: new THREE.Vector3(-4, 1, 1) },
@@ -33,4 +43,5 @@ export const TREE_SLOTS = [
     { tree: TREE.T4, position: new THREE.Vector3(8, 1, 13) },
 ];
 
+// Nome do arquivo de exportação
 export const EXPORT_FILENAME = "tree.json";
