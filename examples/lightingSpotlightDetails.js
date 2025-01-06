@@ -59,6 +59,7 @@ let spotLight = new THREE.SpotLight("rgb(255,255,255)");
   spotLight.shadow.camera.far = 20.0;        
 
 scene.add(spotLight);
+scene.add(spotLight.target);
 
 // Create helper for the spotlight
 const spotHelper = new THREE.SpotLightHelper(spotLight, 0xFF8C00);
@@ -83,7 +84,6 @@ function createTeapot(x, y, z, color )
 }
 
 function updateLight() {
-  spotLight.target.updateMatrixWorld();
   lightSphere.position.copy(spotLight.position);
   spotLight.shadow.camera.updateProjectionMatrix();     
   spotHelper.update();
