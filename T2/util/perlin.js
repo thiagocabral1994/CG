@@ -1,4 +1,4 @@
-const perlin = {
+const getPerlin = () => ({
     rand_vect: function(){
         let theta = Math.random() * 2 * Math.PI;
         return {x: Math.cos(theta), y: Math.sin(theta)};
@@ -40,7 +40,12 @@ const perlin = {
         this.memory[[x,y]] = v;
         return v;
     }
-}
-perlin.seed();
+});
 
-export default perlin;
+const createPerlin = () => {
+    const perlin = getPerlin();
+    perlin.seed();
+    return perlin;
+}
+
+export default createPerlin;
