@@ -8,9 +8,9 @@ import {
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { VoxelTransformer } from './components/VoxelTransformer.js';
-import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE_SLOTS } from './global/constants.js';
+import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE_SLOTS, TREE } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
-import perlin from './util/perlin.js'
+import createPerlin from './util/perlin.js'
 
 let scene, renderer, light, keyboard;
 scene = new THREE.Scene();    // Create main scene
@@ -18,7 +18,19 @@ renderer = initRenderer("#add9e6");    // View function in util/utils
 light = initDefaultBasicLight(scene);
 keyboard = new KeyboardState();
 
+const terrainHeightPerlin = createPerlin();
+const terrainTypePerlin = createPerlin();
+const treeDistributionPerlin = createPerlin();
+
 //scene.fog = new THREE.Fog( 0xcccccc, 10, 100);
+
+function createBatchVoxel(matKey, count) {
+    const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+    const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(matKey);
+    const instancedMesh = new THREE.InstancedMesh(voxelGeometry, voxelMeshMaterial, count);
+    scene.add(instancedMesh);
+    return instancedMesh;
+}
 
 function createVoxel(x, y, z, key) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
@@ -49,22 +61,71 @@ function drawXAxis(minX, maxX, y, z, matKey) {
             matKey
         );
     }
+}
 
+function placeVoxelInValley(payload, x, y, z) {
+    const { matrixes, count } = payload;
+
+    matrixes[count] = new THREE.Matrix4()
+    matrixes[count].setPosition(
+        VoxelTransformer.transformVoxelCoordinate(x, false),
+        VoxelTransformer.transformVoxelCoordinate(y),
+        VoxelTransformer.transformVoxelCoordinate(z, false),
+    );
+    payload.count++;
+}
+
+function updateInstanceMeshes(payload) {
+    const instanceMesh = createBatchVoxel(payload.key, payload.matrixes.length);
+    for (let j = 0; j < payload.matrixes.length; j++) {
+        instanceMesh.setMatrixAt(j, payload.matrixes[j])
+    }
 }
 
 function renderValley() {
     const scale = 20;
     const smootheness = 40;
     const perlinOffset = 0.50;
+    
+    const grassPayload = { matrixes: [], count: 0, key: MATERIAL.GRASS };
+    const sandPayload = { matrixes: [], count: 0, key: MATERIAL.SAND };
+    const stonePayload = { matrixes: [], count: 0, key: MATERIAL.STONE };
+    const treePositions = [];
+
     for (let x = - (EXEC_AXIS_VOXEL_COUNT / 2); x < (EXEC_AXIS_VOXEL_COUNT / 2); x++) {
         for (let z = -(EXEC_AXIS_VOXEL_COUNT / 2); z < (EXEC_AXIS_VOXEL_COUNT / 2); z++) {
-            const perlinValue = perlin.get((x / smootheness), (z / smootheness));
+            const heightMultiplier = terrainHeightPerlin.get((x / smootheness), (z / smootheness));
 
-            let heightValue = (perlinValue + perlinOffset) * scale;
+            let heightValue = (heightMultiplier + perlinOffset) * scale;
             if (heightValue > 20) {
                 heightValue = 20;
             } else if (heightValue < 0) {
                 heightValue = 0;
+            }
+
+            const typeMultiplier = terrainTypePerlin.get((x / smootheness), (z / smootheness));
+
+            let selectedPayload = grassPayload;
+            if (typeMultiplier > 0.3) {
+                selectedPayload = sandPayload;
+            } else if (typeMultiplier < - 0.3) {
+                selectedPayload = stonePayload;
+            }
+
+            const treeRandom = (1 - Math.random()) * 100;
+            if (
+                treeRandom <= 1 && 
+                selectedPayload.key === MATERIAL.GRASS &&
+                Math.floor(heightValue) > 3
+            ) {
+                const nextTreeMatrix = new THREE.Vector3(x, Math.floor(heightValue) + 1, z);
+                const hasTreeNearby = treePositions.some(position =>
+                    Math.abs(x - position.x) < 10 &&
+                    Math.abs(z - position.z) < 10
+                );
+                if (!hasTreeNearby) {
+                    treePositions.push(nextTreeMatrix);
+                }
             }
 
             if (
@@ -73,34 +134,30 @@ function renderValley() {
                 z != - (EXEC_AXIS_VOXEL_COUNT / 2) &&
                 z != ((EXEC_AXIS_VOXEL_COUNT / 2) - 1)
             ) {
+                const roundedHeight = Math.floor(heightValue);
                 // Criamos o voxel pra superfície
-                createVoxel(
-                    VoxelTransformer.transformVoxelCoordinate(x, false),
-                    VoxelTransformer.transformVoxelCoordinate(Math.floor(heightValue)),
-                    VoxelTransformer.transformVoxelCoordinate(z, false),
-                    MATERIAL.EXEC_FLOOR_1
-                );
+                placeVoxelInValley(roundedHeight > 2 ? selectedPayload : stonePayload, x, roundedHeight, z);
                 // E criamos o voxel para o fundo
-                createVoxel(
-                    VoxelTransformer.transformVoxelCoordinate(x, false),
-                    VoxelTransformer.transformVoxelCoordinate(0),
-                    VoxelTransformer.transformVoxelCoordinate(z, false),
-                    MATERIAL.EXEC_FLOOR_1
-                );
+                placeVoxelInValley(stonePayload, x, 0, z);
             } else {
                 for (let y = 0; y <= Math.floor(heightValue); y++) {
-                    createVoxel(
-                        VoxelTransformer.transformVoxelCoordinate(x, false),
-                        VoxelTransformer.transformVoxelCoordinate(y),
-                        VoxelTransformer.transformVoxelCoordinate(z, false),
-                        MATERIAL.EXEC_FLOOR_1
-                    );
+                    placeVoxelInValley(y > 2 ? selectedPayload : stonePayload, x, y, z);
                 }
             }
         }
     }
 
-    return Promise.resolve();
+    updateInstanceMeshes(stonePayload);
+    updateInstanceMeshes(grassPayload);
+    updateInstanceMeshes(sandPayload);
+
+    const promises = treePositions.map(position => {
+        const treeValues = Object.values(TREE);
+        const randomKey = treeValues[Math.floor(Math.random() * treeValues.length)];
+        addTree(randomKey, position);
+    });
+
+    return Promise.resolve(promises);
 }
 
 function renderValley2() {

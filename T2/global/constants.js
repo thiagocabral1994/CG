@@ -4,6 +4,9 @@ export const VOXEL_SIZE = 5;
 export const BUILDER_AXIS_VOXEL_COUNT = 10;
 export const EXEC_AXIS_VOXEL_COUNT = 200;
 export const MATERIAL = {
+    STONE: "STONE",
+    GRASS: "GRASS",
+    SAND: "SAND",
     M1: "M1",
     M2: "M2",
     M3: "M3",
