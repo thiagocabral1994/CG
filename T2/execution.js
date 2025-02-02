@@ -4,12 +4,11 @@ import {
     initRenderer,
     initDefaultBasicLight,
     onWindowResize,
-    getFilename,
     getMaxSize,
 } from "../libs/util/util.js";
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
-import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
+import { PointerLockOrbitControls } from './util/PointerLockOrbitControls.js';
 import { VoxelTransformer } from './components/VoxelTransformer.js';
 import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE_SLOTS, TREE } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
@@ -170,7 +169,7 @@ function renderValley() {
 // Orbital camera
 const camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 
-const orbitalCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const orbitalCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
 orbitalCamera.position.copy(new THREE.Vector3(20 * VOXEL_SIZE, 20 * VOXEL_SIZE, 46 * VOXEL_SIZE));
 orbitalCamera.up.copy(camUp);
 orbitalCamera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
@@ -181,8 +180,10 @@ const characterPosition = new THREE.Vector3(VOXEL_SIZE / 2, VoxelTransformer.tra
 firstPersonCamera.position.set(characterPosition.x - (5 * VOXEL_SIZE), characterPosition.y + 3 * (VOXEL_SIZE / 2), characterPosition.z);
 firstPersonCamera.up.copy(camUp);
 firstPersonCamera.lookAt(characterPosition);
-const firstPersonControls = new PointerLockControls(firstPersonCamera, renderer.domElement);
-scene.add(firstPersonControls.getObject())
+const firstPersonControls = new PointerLockOrbitControls(firstPersonCamera, renderer.domElement);
+firstPersonControls.enableZoom = false;
+firstPersonControls.enablePan = false;
+firstPersonControls.maxPolarAngle = Math.PI / 2;
 
 let characterMesh;
 let characterAnimationMixer = Array();
@@ -205,6 +206,7 @@ function loadGLTFFile(modelName, position) {
         var scale = getMaxSize(obj); // Available in 'utils.js'
         obj.scale.set(VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale));
         characterMesh = obj;
+        firstPersonControls.target.copy(characterMesh.position);
         scene.add(obj);
 
         // Create animationMixer and push it in the array of mixers
@@ -230,14 +232,56 @@ window.addEventListener('keydown', (event) => {
         if (isFirstPersonCamera) {
             firstPersonControls.lock();
             orbitalControls.enabled = false;
+            firstPersonControls.enabled = true;
         } else {
             firstPersonControls.unlock();
             orbitalControls.enabled = true;
+            firstPersonControls.enabled = false;
             // Isso é necessário para evitar um estado intermediário onde o usuário não consegue orbitar a câmera até apertar a tecla ESC.
             document.exitPointerLock();
         }
     }
 });
+
+document.addEventListener('pointerlockchange', () => {
+    isFirstPersonCamera = firstPersonControls.isLocked;
+    if(firstPersonControls.isLocked) {
+        firstPersonControls.lock();
+        firstPersonControls.enabled = true;
+    } else {
+        orbitalControls.enabled = true;
+        firstPersonControls.enabled = false;
+    }
+})
+
+
+
+// let isPointerLocked = false
+
+// function handlePointerLock (evt) {
+//     isPointerLocked = !isPointerLocked
+    
+//     if(isPointerLocked) {
+//         // Get mouse events
+//         document.addEventListener('mousemove', mouseMoveHandler)
+//     } else {
+//         // remove event listening on pointer lock exit
+//         document.removeEventListener('mousemove', mouseMoveHandler)
+//     }
+// }
+
+// function mouseMoveHandler (e) {
+//     if (document.pointerLockElement === document.body) {
+//         const deltaX = e.movementX;
+//         const deltaY = e.movementY;
+//         firstPersonControls.autoRotate = true;
+//         firstPersonControls.autoRotateSpeed = deltaX;
+//         firstPersonCamera.up.set( 0, 1, 0);
+//         firstPersonControls.update();
+//         // firstPersonControls.rotateLeft(e.movementX * 0.002);
+//         // firstPersonControls.rotateUp(e.movementY * 0.002);
+//     }
+// }
 
 // movement controls
 const speed = 20;
@@ -277,28 +321,54 @@ function adjustQuaternionAxis() {
     euler.setFromQuaternion(firstPersonCamera.quaternion);
 
     // Apply only the Y rotation to the character
-    characterMesh.rotation.set(0, euler.y + Math.PI, 0); // + Math.PI to face opposite direction
+    characterMesh?.rotation.set(0, euler.y + Math.PI, 0); // + Math.PI to face opposite direction
 }
 
-function adjustCharacterPosition() {
-    const offset = new THREE.Vector3(0, 0, -5 * VOXEL_SIZE); // Offset only in Y direction
-    offset.applyQuaternion(firstPersonCamera.quaternion); // Apply camera's rotation to offset
-
-    // Copy camera position but adjust only X and Y (ignore Z)
-    characterMesh.position.set(
-        firstPersonCamera.position.x + offset.x,
-        characterMesh.position.y,
-        firstPersonCamera.position.z + offset.z,
-    );
+function moveCharacterForward(distance) {
+    const direction = new THREE.Vector3(0, 0, -1); // Default forward direction in local space
+    const quaternion = new THREE.Quaternion();
+    
+    // Extract rotation from the camera
+    firstPersonCamera.getWorldQuaternion(quaternion);
+    
+    // Rotate the direction by the camera's quaternion
+    direction.applyQuaternion(quaternion);
+    
+    // Move only in the XZ plane (ignore Y)
+    direction.y = 0;
+    direction.normalize();
+    
+    // Apply movement
+    characterMesh.position.addScaledVector(direction, distance);
+    firstPersonControls.target.copy(characterMesh.position);
+    firstPersonCamera.position.addScaledVector(direction, distance);
 }
 
-let lastYRotation;
+function moveCharacterRight(distance) {
+    const direction = new THREE.Vector3(1, 0, 0); // Default forward direction in local space
+    const quaternion = new THREE.Quaternion();
+    
+    // Extract rotation from the camera
+    firstPersonCamera.getWorldQuaternion(quaternion);
+    
+    // Rotate the direction by the camera's quaternion
+    direction.applyQuaternion(quaternion);
+    
+    // Move only in the XZ plane (ignore Y)
+    direction.y = 0;
+    direction.normalize();
+    
+    // Apply movement
+    characterMesh.position.addScaledVector(direction, distance);
+    firstPersonControls.target.copy(characterMesh.position);
+    firstPersonCamera.position.addScaledVector(direction, distance);
+}
 
 function moveAnimate(delta) {
     adjustQuaternionAxis();
     const distance = speed * delta;
 
-    if (!moveForward && !moveBackward && !moveRight && !moveLeft && lastYRotation === firstPersonCamera.rotation.y) {
+    if (!moveForward && !moveBackward && !moveRight && !moveLeft) {
         // Vamos setar o idle state
         characterAnimationMixer[0].setTime(2);
     } else {
@@ -307,25 +377,19 @@ function moveAnimate(delta) {
     }
 
     if (moveForward) {
-        firstPersonControls.moveForward(distance);
-        //moveCharacterForward(distance);
-
+        moveCharacterForward(distance);
     }
     else if (moveBackward) {
-        firstPersonControls.moveForward(distance * -1);
-        //moveCharacterForward(distance * -1);
+        moveCharacterForward(distance * -1);
     }
     if (moveRight) {
-        firstPersonControls.moveRight(distance);
-        //moveCharacterRight(distance);
+        moveCharacterRight(distance);
     }
     else if (moveLeft) {
-        firstPersonControls.moveRight(distance * -1);
-        //moveCharacterRight(distance * -1);
+        moveCharacterRight(distance * -1);
     }
 
-    lastYRotation = firstPersonCamera.rotation.y;
-    adjustCharacterPosition();
+    // adjustCharacterPosition();
 }
 
 renderValley().then(() => {
