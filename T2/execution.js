@@ -23,7 +23,9 @@ keyboard = new KeyboardState();
 const terrainHeightPerlin = createPerlin();
 const terrainTypePerlin = createPerlin();
 
-//scene.fog = new THREE.Fog( 0xcccccc, 10, 100);
+const collidables = [];
+
+// scene.fog = new THREE.Fog( 0xcccccc, 10, 100);
 
 function createBatchVoxel(matKey, count) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
@@ -39,6 +41,7 @@ function createVoxel(x, y, z, key) {
     const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
 
     voxelMesh.position.set(x, y, z);
+    collidables.push(new THREE.Box3().setFromObject(voxelMesh));
     scene.add(voxelMesh);
 }
 
@@ -62,6 +65,11 @@ function placeVoxelInValley(payload, x, y, z) {
         VoxelTransformer.transformVoxelCoordinate(y),
         VoxelTransformer.transformVoxelCoordinate(z, false),
     );
+
+    const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+    const tempMesh = new THREE.Mesh(voxelGeometry, null);
+    tempMesh.applyMatrix4(matrixes[count]);
+    collidables.push(new THREE.Box3().setFromObject(tempMesh));
     payload.count++;
 }
 
@@ -245,7 +253,7 @@ window.addEventListener('keydown', (event) => {
 
 document.addEventListener('pointerlockchange', () => {
     isFirstPersonCamera = firstPersonControls.isLocked;
-    if(firstPersonControls.isLocked) {
+    if (firstPersonControls.isLocked) {
         firstPersonControls.lock();
         firstPersonControls.enabled = true;
     } else {
@@ -260,6 +268,9 @@ let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
+let moveUp = false;
+const acceleration = - 10 * VOXEL_SIZE;
+let velocity = 0;
 
 window.addEventListener('keydown', (event) => movementControls(event.key, true));
 window.addEventListener('keyup', (event) => movementControls(event.key, false));
@@ -283,6 +294,13 @@ function movementControls(key, value) {
         case 'd':
             moveRight = value;
             break; // D
+        case ' ':
+            if (!moveUp) {
+                // Se falso, significa que a gente precisa setar a velocidade inicial da altura;
+                velocity = 5 * VOXEL_SIZE;
+            }
+            moveUp = value;
+            break; // Space
     }
 }
 
@@ -292,23 +310,23 @@ function adjustQuaternionAxis() {
     euler.setFromQuaternion(firstPersonCamera.quaternion);
 
     // Apply only the Y rotation to the character
-    characterMesh?.rotation.set(0, euler.y + Math.PI, 0); // + Math.PI to face opposite direction
+    characterMesh.rotation.set(0, euler.y + Math.PI, 0); // + Math.PI to face opposite direction
 }
 
 function moveCharacterForward(distance) {
     const direction = new THREE.Vector3(0, 0, -1); // Default forward direction in local space
     const quaternion = new THREE.Quaternion();
-    
+
     // Extract rotation from the camera
     firstPersonCamera.getWorldQuaternion(quaternion);
-    
+
     // Rotate the direction by the camera's quaternion
     direction.applyQuaternion(quaternion);
-    
+
     // Move only in the XZ plane (ignore Y)
     direction.y = 0;
     direction.normalize();
-    
+
     // Apply movement
     characterMesh.position.addScaledVector(direction, distance);
     firstPersonControls.target.copy(characterMesh.position);
@@ -318,21 +336,104 @@ function moveCharacterForward(distance) {
 function moveCharacterRight(distance) {
     const direction = new THREE.Vector3(1, 0, 0); // Default forward direction in local space
     const quaternion = new THREE.Quaternion();
-    
+
     // Extract rotation from the camera
     firstPersonCamera.getWorldQuaternion(quaternion);
-    
+
     // Rotate the direction by the camera's quaternion
     direction.applyQuaternion(quaternion);
-    
+
     // Move only in the XZ plane (ignore Y)
     direction.y = 0;
     direction.normalize();
-    
+
     // Apply movement
     characterMesh.position.addScaledVector(direction, distance);
     firstPersonControls.target.copy(characterMesh.position);
     firstPersonCamera.position.addScaledVector(direction, distance);
+}
+
+function moveCharacterUp(distance) {
+    const direction = new THREE.Vector3(0, 1, 0); // Default forward direction in local space
+
+    direction.normalize();
+
+    // Apply movement
+    characterMesh.position.addScaledVector(direction, distance);
+    firstPersonControls.target.copy(characterMesh.position);
+    firstPersonCamera.position.addScaledVector(direction, distance);
+}
+
+function checkCollisionForward(distance) {
+    const direction = new THREE.Vector3(0, 0, -1); // Default forward direction in local space
+    const bandwidth = new THREE.Vector3(0, 1, 0); // UGH
+    const quaternion = new THREE.Quaternion();
+
+    // Extract rotation from the camera
+    firstPersonCamera.getWorldQuaternion(quaternion);
+
+    // Rotate the direction by the camera's quaternion
+    direction.applyQuaternion(quaternion);
+
+    // Move only in the XZ plane (ignore Y)
+    direction.y = 0;
+    direction.normalize();
+
+    // Apply movement
+    const futurePosition = characterMesh.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
+    const geometry = new THREE.BoxGeometry(VOXEL_SIZE, 2 * VOXEL_SIZE, VOXEL_SIZE);
+    const voxelMesh = new THREE.Mesh(geometry, null);
+    voxelMesh.position.copy(futurePosition);
+    const box = new THREE.Box3().setFromObject(voxelMesh)
+    if (collidables.some(collidable => collidable.intersectsBox(box))) {
+        return true;
+    }
+    return false;
+}
+
+function checkCollisionRight(distance) {
+    const direction = new THREE.Vector3(1, 0, 0); // Default forward direction in local space
+    const bandwidth = new THREE.Vector3(0, 1, 0); // UGH
+    const quaternion = new THREE.Quaternion();
+
+    // Extract rotation from the camera
+    firstPersonCamera.getWorldQuaternion(quaternion);
+
+    // Rotate the direction by the camera's quaternion
+    direction.applyQuaternion(quaternion);
+
+    // Move only in the XZ plane (ignore Y)
+    direction.y = 0;
+    direction.normalize();
+
+    // Apply movement
+    const futurePosition = characterMesh.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
+    const geometry = new THREE.BoxGeometry(VOXEL_SIZE, 2 * VOXEL_SIZE, VOXEL_SIZE);
+    const voxelMesh = new THREE.Mesh(geometry, null);
+    voxelMesh.position.copy(futurePosition);
+    const box = new THREE.Box3().setFromObject(voxelMesh)
+    if (collidables.some(collidable => collidable.intersectsBox(box))) {
+        return true;
+    }
+    return false;
+}
+
+function checkCollisionUp(distance) {
+    const direction = new THREE.Vector3(0, 1, 0); // Default forward direction in local space
+    const bandwidth = new THREE.Vector3(0, 1, 0); // UGH
+
+    direction.normalize();
+
+    // Apply movement
+    const futurePosition = characterMesh.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
+    const geometry = new THREE.BoxGeometry(VOXEL_SIZE, 2 * VOXEL_SIZE, VOXEL_SIZE);
+    const voxelMesh = new THREE.Mesh(geometry, null);
+    voxelMesh.position.copy(futurePosition);
+    const box = new THREE.Box3().setFromObject(voxelMesh)
+    if (collidables.some(collidable => collidable.intersectsBox(box))) {
+        return true;
+    }
+    return false;
 }
 
 function moveAnimate(delta) {
@@ -347,20 +448,26 @@ function moveAnimate(delta) {
         characterAnimationMixer[0].update(delta);
     }
 
-    if (moveForward) {
-        moveCharacterForward(distance);
-    }
-    else if (moveBackward) {
-        moveCharacterForward(distance * -1);
-    }
-    if (moveRight) {
-        moveCharacterRight(distance);
-    }
-    else if (moveLeft) {
-        moveCharacterRight(distance * -1);
+    velocity = velocity + acceleration * delta;
+    const distanceY = velocity * delta;
+    if (!checkCollisionUp(distanceY)) {
+        moveCharacterUp(distanceY);
+    } else {
+        velocity = 0;
     }
 
-    // adjustCharacterPosition();
+    if (moveForward && !checkCollisionForward(distance)) {
+        moveCharacterForward(distance);
+    }
+    else if (moveBackward && !checkCollisionForward(-distance)) {
+        moveCharacterForward(distance * -1);
+    }
+    if (moveRight && !checkCollisionRight(distance)) {
+        moveCharacterRight(distance);
+    }
+    else if (moveLeft && !checkCollisionRight(-distance)) {
+        moveCharacterRight(distance * -1);
+    }
 }
 
 renderValley().then(() => {
