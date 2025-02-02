@@ -254,35 +254,6 @@ document.addEventListener('pointerlockchange', () => {
     }
 })
 
-
-
-// let isPointerLocked = false
-
-// function handlePointerLock (evt) {
-//     isPointerLocked = !isPointerLocked
-    
-//     if(isPointerLocked) {
-//         // Get mouse events
-//         document.addEventListener('mousemove', mouseMoveHandler)
-//     } else {
-//         // remove event listening on pointer lock exit
-//         document.removeEventListener('mousemove', mouseMoveHandler)
-//     }
-// }
-
-// function mouseMoveHandler (e) {
-//     if (document.pointerLockElement === document.body) {
-//         const deltaX = e.movementX;
-//         const deltaY = e.movementY;
-//         firstPersonControls.autoRotate = true;
-//         firstPersonControls.autoRotateSpeed = deltaX;
-//         firstPersonCamera.up.set( 0, 1, 0);
-//         firstPersonControls.update();
-//         // firstPersonControls.rotateLeft(e.movementX * 0.002);
-//         // firstPersonControls.rotateUp(e.movementY * 0.002);
-//     }
-// }
-
 // movement controls
 const speed = 20;
 let moveForward = false;
