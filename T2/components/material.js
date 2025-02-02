@@ -3,6 +3,7 @@ import { MATERIAL } from "../global/constants.js";
 
 export const VoxelMaterial = {
     catalog: {
+        [MATERIAL.DEBUG]: { color: 'red' },
         [MATERIAL.STONE]: { color: 'gray' },
         [MATERIAL.GRASS]: { color: 'green' },
         [MATERIAL.SAND]: { color: 'gold' },

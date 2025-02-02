@@ -3,8 +3,11 @@ import KeyboardState from '../libs/util/KeyboardState.js'
 import {
     initRenderer,
     initDefaultBasicLight,
-    onWindowResize
+    onWindowResize,
+    getFilename,
+    getMaxSize,
 } from "../libs/util/util.js";
+import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { VoxelTransformer } from './components/VoxelTransformer.js';
@@ -20,7 +23,6 @@ keyboard = new KeyboardState();
 
 const terrainHeightPerlin = createPerlin();
 const terrainTypePerlin = createPerlin();
-const treeDistributionPerlin = createPerlin();
 
 //scene.fog = new THREE.Fog( 0xcccccc, 10, 100);
 
@@ -52,17 +54,6 @@ async function addTree(treeKey, mapPosition) {
     });
 }
 
-function drawXAxis(minX, maxX, y, z, matKey) {
-    for (let x = minX; x <= maxX; x++) {
-        createVoxel(
-            VoxelTransformer.transformVoxelCoordinate(x, false),
-            VoxelTransformer.transformVoxelCoordinate(y),
-            VoxelTransformer.transformVoxelCoordinate(z, false),
-            matKey
-        );
-    }
-}
-
 function placeVoxelInValley(payload, x, y, z) {
     const { matrixes, count } = payload;
 
@@ -82,11 +73,27 @@ function updateInstanceMeshes(payload) {
     }
 }
 
+function getTerrainHeight(x, z) {
+    const scale = 20;
+    const smootheness = 40;
+    const perlinOffset = 0.50;
+    const heightMultiplier = terrainHeightPerlin.get((x / smootheness), (z / smootheness));
+
+    let heightValue = (heightMultiplier + perlinOffset) * scale;
+    if (heightValue > 20) {
+        heightValue = 20;
+    } else if (heightValue < 0) {
+        heightValue = 0;
+    }
+
+    return Math.floor(heightValue);
+}
+
 function renderValley() {
     const scale = 20;
     const smootheness = 40;
     const perlinOffset = 0.50;
-    
+
     const grassPayload = { matrixes: [], count: 0, key: MATERIAL.GRASS };
     const sandPayload = { matrixes: [], count: 0, key: MATERIAL.SAND };
     const stonePayload = { matrixes: [], count: 0, key: MATERIAL.STONE };
@@ -114,7 +121,7 @@ function renderValley() {
 
             const treeRandom = (1 - Math.random()) * 100;
             if (
-                treeRandom <= 1 && 
+                treeRandom <= 1 &&
                 selectedPayload.key === MATERIAL.GRASS &&
                 Math.floor(heightValue) > 3
             ) {
@@ -129,7 +136,7 @@ function renderValley() {
             }
 
             if (
-                x != - (EXEC_AXIS_VOXEL_COUNT / 2) && 
+                x != - (EXEC_AXIS_VOXEL_COUNT / 2) &&
                 x != ((EXEC_AXIS_VOXEL_COUNT / 2) - 1) &&
                 z != - (EXEC_AXIS_VOXEL_COUNT / 2) &&
                 z != ((EXEC_AXIS_VOXEL_COUNT / 2) - 1)
@@ -160,39 +167,6 @@ function renderValley() {
     return Promise.resolve(promises);
 }
 
-function renderValley2() {
-    let leftStartX = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 7);
-    let rightStartX = Math.floor(EXEC_AXIS_VOXEL_COUNT / 7);
-    const startZ = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
-    const endZ = Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
-    const xMin = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
-    const xMax = Math.floor(EXEC_AXIS_VOXEL_COUNT / 2);
-
-    for (let z = startZ; z <= endZ; z++) {
-        const variation = Math.cos(z / 8) * 3;
-        // Renderiza o lado esquerdo do primeiro nível
-        drawXAxis(xMin, leftStartX + Math.round(variation), 0, z, MATERIAL.EXEC_FLOOR_1);
-        // Renderiza o lado direito do primeiro nível.
-        drawXAxis(rightStartX + Math.round(variation), xMax, 0, z, MATERIAL.EXEC_FLOOR_1);
-    }
-
-    leftStartX = - Math.floor(EXEC_AXIS_VOXEL_COUNT / 3.5);
-    rightStartX = Math.floor(EXEC_AXIS_VOXEL_COUNT / 3.5);
-    for (let z = startZ; z <= endZ; z++) {
-        let variation = Math.cos(z / 5) * 2;
-        // Renderiza o lado esquerdo do segundo nível
-        drawXAxis(xMin, leftStartX + Math.round(variation), 1, z, MATERIAL.EXEC_FLOOR_2);
-
-        variation = Math.cos(z / 10) * 3;
-        // Renderiza o lado direito do segundo nível
-        drawXAxis(rightStartX + Math.round(variation), xMax, 1, z, MATERIAL.EXEC_FLOOR_2);
-    }
-
-    // Prencheer os slots das árvores.
-    const promises = TREE_SLOTS.map(({ tree, position }) => addTree(tree, position));
-    return Promise.all(promises);
-}
-
 // Orbital camera
 const camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 
@@ -203,12 +177,46 @@ orbitalCamera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 const orbitalControls = new OrbitControls(orbitalCamera, renderer.domElement);
 
 const firstPersonCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-firstPersonCamera.position.copy(new THREE.Vector3(0, VOXEL_SIZE / 2, 0));
+const characterPosition = new THREE.Vector3(VOXEL_SIZE / 2, VoxelTransformer.transformVoxelCoordinate(getTerrainHeight(0, 0)) + 3 * (VOXEL_SIZE / 2), VOXEL_SIZE / 2);
+firstPersonCamera.position.set(characterPosition.x - (5 * VOXEL_SIZE), characterPosition.y + 3 * (VOXEL_SIZE / 2), characterPosition.z);
 firstPersonCamera.up.copy(camUp);
-firstPersonCamera.lookAt(new THREE.Vector3(VOXEL_SIZE, VOXEL_SIZE / 2, VOXEL_SIZE));
+firstPersonCamera.lookAt(characterPosition);
 const firstPersonControls = new PointerLockControls(firstPersonCamera, renderer.domElement);
 scene.add(firstPersonControls.getObject())
 
+let characterMesh;
+let characterAnimationMixer = Array();
+
+loadGLTFFile('./assets/character/steve.glb', characterPosition);
+// Finish Importação de arquivo 
+
+function loadGLTFFile(modelName, position) {
+    var loader = new GLTFLoader();
+    loader.load(modelName, function (gltf) {
+        var obj = gltf.scene;
+        obj.traverse(function (child) {
+            if (child.isMesh) child.castShadow = true;
+            if (child.material) child.material.side = THREE.DoubleSide;
+        });
+
+        // Only fix the position of the centered object
+        // The man around will have a different geometric transformation
+        obj.position.copy(position);
+        var scale = getMaxSize(obj); // Available in 'utils.js'
+        obj.scale.set(VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale));
+        characterMesh = obj;
+        scene.add(obj);
+
+        // Create animationMixer and push it in the array of mixers
+        var mixerLocal = new THREE.AnimationMixer(obj);
+        mixerLocal.clipAction(gltf.animations[0]).play();
+        characterAnimationMixer.push(mixerLocal);
+    }, onProgress, onError);
+}
+
+function onError() { };
+
+function onProgress(xhr, model) { }
 
 window.addEventListener('resize', function () { onWindowResize(orbitalCamera, renderer) }, false);
 window.addEventListener('resize', function () { onWindowResize(firstPersonCamera, renderer) }, false);
@@ -263,20 +271,61 @@ function movementControls(key, value) {
     }
 }
 
+function adjustQuaternionAxis() {
+    // Extract the Y-axis rotation from the camera's quaternion
+    const euler = new THREE.Euler(0, 0, 0, 'YXZ'); // YXZ order ensures proper extraction
+    euler.setFromQuaternion(firstPersonCamera.quaternion);
+
+    // Apply only the Y rotation to the character
+    characterMesh.rotation.set(0, euler.y + Math.PI, 0); // + Math.PI to face opposite direction
+}
+
+function adjustCharacterPosition() {
+    const offset = new THREE.Vector3(0, 0, -5 * VOXEL_SIZE); // Offset only in Y direction
+    offset.applyQuaternion(firstPersonCamera.quaternion); // Apply camera's rotation to offset
+
+    // Copy camera position but adjust only X and Y (ignore Z)
+    characterMesh.position.set(
+        firstPersonCamera.position.x + offset.x,
+        characterMesh.position.y,
+        firstPersonCamera.position.z + offset.z,
+    );
+}
+
+let lastYRotation;
+
 function moveAnimate(delta) {
-    if (moveForward) {
-        firstPersonControls.moveForward(speed * delta);
-    }
-    else if (moveBackward) {
-        firstPersonControls.moveForward(speed * -1 * delta);
+    adjustQuaternionAxis();
+    const distance = speed * delta;
+
+    if (!moveForward && !moveBackward && !moveRight && !moveLeft && lastYRotation === firstPersonCamera.rotation.y) {
+        // Vamos setar o idle state
+        characterAnimationMixer[0].setTime(2);
+    } else {
+        // Vamos manter o personagem em animação de movimento
+        characterAnimationMixer[0].update(delta);
     }
 
+    if (moveForward) {
+        firstPersonControls.moveForward(distance);
+        //moveCharacterForward(distance);
+
+    }
+    else if (moveBackward) {
+        firstPersonControls.moveForward(distance * -1);
+        //moveCharacterForward(distance * -1);
+    }
     if (moveRight) {
-        firstPersonControls.moveRight(speed * delta);
+        firstPersonControls.moveRight(distance);
+        //moveCharacterRight(distance);
     }
     else if (moveLeft) {
-        firstPersonControls.moveRight(speed * -1 * delta);
+        firstPersonControls.moveRight(distance * -1);
+        //moveCharacterRight(distance * -1);
     }
+
+    lastYRotation = firstPersonCamera.rotation.y;
+    adjustCharacterPosition();
 }
 
 renderValley().then(() => {

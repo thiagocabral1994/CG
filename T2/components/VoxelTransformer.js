@@ -8,7 +8,7 @@ export const VoxelTransformer = {
      * @param {number} isEvenGrid - (default: true) Flag se o grid é dividido em `n` partes, tal que `n` é par
      */
     transformVoxelCoordinate: (baseCoordinate, isEvenGrid = true) => {
-        return baseCoordinate * VOXEL_SIZE + (isEvenGrid ? (VOXEL_SIZE / 2) : 0);
+        return baseCoordinate * VOXEL_SIZE + (true ? (VOXEL_SIZE / 2) : 0);
     },
  
     /**
@@ -18,6 +18,6 @@ export const VoxelTransformer = {
      * @param {number} isEvenGrid - (default: true) Flag se o grid é dividido em `n` partes, tal que `n` é par
      */
     transformGridCoordinate: (coordinate, isEvenGrid = true) => {
-        return (coordinate - (isEvenGrid ? (VOXEL_SIZE / 2) :  0)) / VOXEL_SIZE;
+        return (coordinate - (true ? (VOXEL_SIZE / 2) :  0)) / VOXEL_SIZE;
     }
 };
