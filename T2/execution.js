@@ -254,7 +254,13 @@ document.getElementById('webgl-output').addEventListener('click', function () {
     }
 }, false);
 
+let isJumping = false;
+let velocityY = 40;
+const gravity = -80; // Simula a gravidade
+const jumpStrength = 32; // Ajuste conforme necessário
+
 function movementControls(key, value) {
+    debugger;
     switch (key) {
         case 'w':
             moveForward = value;
@@ -268,6 +274,11 @@ function movementControls(key, value) {
         case 'd':
             moveRight = value;
             break; // D
+        case ' ':
+            if (!isJumping) {
+                isJumping = true;
+                velocityY = jumpStrength;
+            }
     }
 }
 
@@ -328,6 +339,28 @@ function moveAnimate(delta) {
     adjustCharacterPosition();
 }
 
+function updateJump(delta) {
+    if (isJumping) {
+        // Aplica a gravidade e atualiza a posição do personagem
+        velocityY += gravity * delta;
+        firstPersonCamera.position.y += velocityY * delta;
+        characterMesh.position.y = firstPersonCamera.position.y;
+
+        // verifica se atingiu o chão, ver como fazer para o chão ser relativo
+        const terrainHeight = VoxelTransformer.transformVoxelCoordinate(getTerrainHeight(
+            Math.floor(firstPersonCamera.position.x / VOXEL_SIZE),
+            Math.floor(firstPersonCamera.position.z / VOXEL_SIZE)
+        )) + 1.5 * (VOXEL_SIZE / 2);
+
+        if (firstPersonCamera.position.y <= terrainHeight) {
+            firstPersonCamera.position.y = terrainHeight;
+            characterMesh.position.y = terrainHeight;
+            isJumping = false;
+            velocityY = 0;
+        }
+    }
+}
+
 renderValley().then(() => {
     // Esperamos carregar todas as árvores antes de renderizar o mapa.
     render();
@@ -338,7 +371,10 @@ function render() {
     requestAnimationFrame(render);
 
     if (firstPersonControls.isLocked) {
-        moveAnimate(clock.getDelta());
+        const delta = clock.getDelta();
+        moveAnimate(delta);
+        
+        updateJump(delta);
     }
 
     renderer.render(scene, isFirstPersonCamera ? firstPersonCamera : orbitalCamera);
