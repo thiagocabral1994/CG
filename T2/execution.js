@@ -29,16 +29,28 @@ const collidables = [];
 
 function createBatchVoxel(matKey, count) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+    voxelGeometry.castShadow = true;
+    voxelGeometry.receiveShadow = true
     const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(matKey);
+    voxelMeshMaterial.castShadow = true;
+    voxelMeshMaterial.receiveShadow = true;
     const instancedMesh = new THREE.InstancedMesh(voxelGeometry, voxelMeshMaterial, count);
+    instancedMesh.castShadow = true;
+    instancedMesh.receiveShadow = true;
     scene.add(instancedMesh);
     return instancedMesh;
 }
 
 function createVoxel(x, y, z, key) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+    voxelGeometry.castShadow = true;
+    voxelGeometry.receiveShadow = true
     const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(key);
+    voxelMeshMaterial.castShadow = true;
+    voxelMeshMaterial.receiveShadow = true;
     const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
+    voxelMesh.castShadow = true;
+    voxelMesh.receiveShadow = true;
 
     voxelMesh.position.set(x, y, z);
     collidables.push(new THREE.Box3().setFromObject(voxelMesh));
@@ -214,6 +226,8 @@ function loadGLTFFile(modelName, position) {
         var scale = getMaxSize(obj); // Available in 'utils.js'
         obj.scale.set(VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale));
         characterMesh = obj;
+        characterMesh.receiveShadow = true;
+        characterMesh.castShadow = true;
         firstPersonControls.target.copy(characterMesh.position);
         scene.add(obj);
 
@@ -476,9 +490,63 @@ renderValley().then(() => {
 });
 
 const clock = new THREE.Clock();
+
+let directionalLight, accessoryLight, shadowHelper;
+
+function initLights() {
+    // Luz Direcional (simula o sol)
+    directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(0, 50, 0);  // Posição inicial
+    directionalLight.castShadow = true;  // Habilita sombra para a luz direcional
+    scene.add(directionalLight);
+
+    // Luz Acessória (luz suave)
+    accessoryLight = new THREE.PointLight(0x00ff00, 1, 100);
+    accessoryLight.position.set(10, 10, 10);  // Posição inicial
+    scene.add(accessoryLight);
+
+    // Helper para visualizar o volume do ShadowMap
+    shadowHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+    scene.add(shadowHelper);
+}
+
+function initScene() {
+    // Adicionando o personagem
+    // Exemplo de um modelo simples para o personagem
+    // const geometry = new THREE.BoxGeometry(1, 2, 1);
+    // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+    // characterMesh = new THREE.Mesh(geometry, material);
+    // characterMesh.position.set(0, 1, 0); // Posição do personagem
+    //  characterMesh.castShadow = true;  // O personagem irá projetar sombras
+    //  characterMesh.receiveShadow = true;  // O personagem pode receber sombras
+    // scene.add(characterMesh);
+
+}
+
+
+function updateLighting() {
+    // Atualiza a posição da luz direcional para seguir o personagem
+    if (characterMesh) {
+        // A luz direcional segue o personagem
+        directionalLight.position.copy(characterMesh.position);
+        directionalLight.position.y += 15;  // Ajusta a altura da luz
+        directionalLight.target.position.copy(characterMesh.position);
+        directionalLight.target.updateMatrixWorld();
+        directionalLight.shadow.mapSize.width = 2048;  // Aumenta a resolução do mapa de sombra
+        directionalLight.shadow.mapSize.height = 2048; // Aumenta a resolução do mapa de sombra
+        directionalLight.shadow.camera.near = 0.1;     // Distância mínima para as sombras
+        directionalLight.shadow.camera.far = 500;  
+    }
+
+    // Atualiza o helper do ShadowMap
+    shadowHelper.update();
+}
+
+initLights();
+initScene();
 function render() {
     requestAnimationFrame(render);
-
+    updateLighting();
     if (firstPersonControls.isLocked) {
         moveAnimate(clock.getDelta());
     }
