@@ -474,6 +474,15 @@ function checkCollisionForward(distance) {
     if (collidables.some(collidable => collidable.intersectsBox(box))) {
         return true;
     }
+
+    if (
+        futurePosition.x <= - VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2), false) ||
+        futurePosition.x >= VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2) - 1, false) ||
+        futurePosition.z <= - VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2), false) ||
+        futurePosition.z >= VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2) - 1, false)
+    ) {
+        return true
+    }
     return false;
 }
 
@@ -500,6 +509,14 @@ function checkCollisionRight(distance) {
     const box = new THREE.Box3().setFromObject(voxelMesh)
     if (collidables.some(collidable => collidable.intersectsBox(box))) {
         return true;
+    }
+    if (
+        futurePosition.x <= - VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2), false) ||
+        futurePosition.x >= VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2) - 1, false) ||
+        futurePosition.z <= - VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2), false) ||
+        futurePosition.z >= VoxelTransformer.transformVoxelCoordinate((EXEC_AXIS_VOXEL_COUNT / 2) - 1, false)
+    ) {
+        return true
     }
     return false;
 }
@@ -533,15 +550,6 @@ function moveAnimate(delta) {
         // Vamos manter o personagem em animação de movimento
         characterAnimationMixer[0].update(delta);
     }
-
-    // velocity = velocity + acceleration * delta;
-    // const distanceY = velocity * delta;
-    // if (!checkCollisionUp(distanceY)) {
-    //     moveCharacterUp(distanceY);
-    // } else {
-    //     velocity = 0;
-    //     canJump = true;
-    // }
 
     if (moveForward && !checkCollisionForward(distance)) {
         moveCharacterForward(distance);
