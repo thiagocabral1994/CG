@@ -13,27 +13,28 @@ import { VoxelTransformer } from './components/VoxelTransformer.js';
 import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE, WATER_LEVEL } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
 import createPerlin from './util/perlin.js'
+import { CubeTextureLoaderSingleFile } from '../libs/util/cubeTextureLoaderSingleFile.js';
 
 var stats = new Stats();
 
 function onButtonPressed() {
-  const loadingScreen = document.getElementById( 'loading-screen' );
+  const loadingScreen = document.getElementById('loading-screen');
   loadingScreen.transition = 0;
-  loadingScreen.classList.add( 'fade-out' );
-  loadingScreen.addEventListener( 'transitionend', (e) => {
+  loadingScreen.classList.add('fade-out');
+  loadingScreen.addEventListener('transitionend', (e) => {
     const element = e.target;
     element.remove();  
   });
 }
 
-const loadingManager = new THREE.LoadingManager( () => {
-  let loadingScreen = document.getElementById( 'loading-screen' );
+const loadingManager = new THREE.LoadingManager(() => {
+  let loadingScreen = document.getElementById('loading-screen');
   loadingScreen.transition = 0;
   loadingScreen.style.setProperty('--speed1', '0');  
   loadingScreen.style.setProperty('--speed2', '0');  
   loadingScreen.style.setProperty('--speed3', '0');      
 
-  let button  = document.getElementById("myBtn")
+  let button = document.getElementById("myBtn")
   button.style.backgroundColor = 'Blue';
   button.innerHTML = 'Start';
   button.addEventListener("click", onButtonPressed);
@@ -108,6 +109,16 @@ scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#add9e6");    // View function in util/utils
 light = initDefaultBasicLight(scene);
 const raycaster = new THREE.Raycaster();
+raycaster.near = 1.0 * VOXEL_SIZE;
+raycaster.far = 3.0 * VOXEL_SIZE;
+
+const cubeMapTexture = new CubeTextureLoaderSingleFile().loadSingle( 
+   './assets/textures/sky_box.png', 1);
+    cubeMapTexture.colorSpace = THREE.SRGBColorSpace;
+
+   // Create the main scene and Set its background as a cubemap (using a CubeTexture)
+scene.background = cubeMapTexture;
+
 keyboard = new KeyboardState();
 
 const terrainHeightPerlin = createPerlin();
