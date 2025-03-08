@@ -3,19 +3,26 @@ import KeyboardState from '../libs/util/KeyboardState.js'
 import Stats from '../build/jsm/libs/stats.module.js';
 import {
     initRenderer,
+    initDefaultBasicLight,
     onWindowResize,
-    getMaxSize,
 } from "../libs/util/util.js";
 import GUI from '../libs/util/dat.gui.module.js'
-import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
-import { PointerLockOrbitControls } from './util/PointerLockOrbitControls.js';
+import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { VoxelTransformer } from './components/VoxelTransformer.js';
-import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE } from './global/constants.js';
+import { VOXEL_SIZE, EXEC_AXIS_VOXEL_COUNT, MATERIAL, TREE, WATER_LEVEL } from './global/constants.js';
 import { VoxelMaterial } from './components/material.js';
 import createPerlin from './util/perlin.js'
 
 var stats = new Stats();
+
+const getGridPositionKey = (position) => {
+    const { x, y, z } = position;
+    const calcX = Math.floor(VoxelTransformer.transformGridCoordinate(x, false));
+    const calcY = Math.floor(VoxelTransformer.transformGridCoordinate(y));
+    const calcZ = Math.floor(VoxelTransformer.transformGridCoordinate(z, false));
+    return `${calcX},${calcY},${calcZ}`;
+}
 
 function createAmbientLight(power) {
     const ambientLight = new THREE.HemisphereLight(
@@ -25,8 +32,6 @@ function createAmbientLight(power) {
     );
     scene.add(ambientLight);
 }
-
-let characterMesh;
 
 function createDirectionalLight(power = Math.PI) {
     const mainLight = new THREE.DirectionalLight('white', 1 * power);
@@ -40,14 +45,14 @@ function createDirectionalLight(power = Math.PI) {
 }
 
 function updateShadow(lightSource, scale) {
-    if (characterMesh) {
-        lightSource.target = characterMesh
-        lightSource.position.set(
-            characterMesh.position.x + 20 * VOXEL_SIZE,
-            characterMesh.position.y + 100 * VOXEL_SIZE,
-            characterMesh.position.z,
-        );
-    }
+    // if (characterMesh) {
+    //     lightSource.target = characterMesh
+    //     lightSource.position.set(
+    //         characterMesh.position.x + 20 * VOXEL_SIZE,
+    //         characterMesh.position.y + 100 * VOXEL_SIZE,
+    //         characterMesh.position.z,
+    //     );
+    // }
 
     const shadow = lightSource.shadow;
 
@@ -78,15 +83,17 @@ function createLight() {
 let scene, renderer, light, keyboard;
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#add9e6");    // View function in util/utils
-light = createLight(scene);
+light = initDefaultBasicLight(scene);
+const raycaster = new THREE.Raycaster();
 keyboard = new KeyboardState();
 
 const terrainHeightPerlin = createPerlin();
 const terrainTypePerlin = createPerlin();
 
-const collidables = [];
+const collidables = {};
+const waterCollidables = {};
 
-const fog = new THREE.Fog(0xcccccc);
+const fog = new THREE.Fog("#add9e6");
 scene.fog = fog;
 
 function createBatchVoxel(matKey, count) {
@@ -107,7 +114,7 @@ function createVoxel(x, y, z, key) {
     voxelMesh.receiveShadow = true;
 
     voxelMesh.position.set(x, y, z);
-    collidables.push(new THREE.Box3().setFromObject(voxelMesh));
+    collidables[getGridPositionKey(voxelMesh.position)] = new THREE.Box3().setFromObject(voxelMesh);
     scene.add(voxelMesh);
 }
 
@@ -135,7 +142,11 @@ function placeVoxelInValley(payload, x, y, z) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
     const tempMesh = new THREE.Mesh(voxelGeometry, null);
     tempMesh.applyMatrix4(matrixes[count]);
-    collidables.push(new THREE.Box3().setFromObject(tempMesh));
+    if (payload.key === MATERIAL.WATER) {
+        waterCollidables[getGridPositionKey(tempMesh.position)] = new THREE.Box3().setFromObject(tempMesh);
+    } else {
+        collidables[getGridPositionKey(tempMesh.position)] = new THREE.Box3().setFromObject(tempMesh);
+    }
     payload.count++;
 }
 
@@ -144,6 +155,7 @@ function updateInstanceMeshes(payload) {
     for (let j = 0; j < payload.matrixes.length; j++) {
         instanceMesh.setMatrixAt(j, payload.matrixes[j])
     }
+    return instanceMesh;
 }
 
 function getTerrainHeight(x, z) {
@@ -162,6 +174,33 @@ function getTerrainHeight(x, z) {
     return Math.floor(heightValue);
 }
 
+
+function getBuildingHeight() {
+    const scale = 20;
+    const smootheness = 40;
+    const perlinOffset = 0.50;
+    let minHeight = Number.POSITIVE_INFINITY; // Número arbitrário para ser sobrescrito
+    for (let x = - 8; x < 8; x++) {
+        for (let z = -8; z < 8; z++) {
+            const heightMultiplier = terrainHeightPerlin.get((x / smootheness) + 0.01, (z / smootheness) + 0.01);
+            const heightValue = (heightMultiplier + perlinOffset) * scale;
+            minHeight = heightValue < minHeight ? heightValue : minHeight;
+            if (minHeight < WATER_LEVEL) {
+                // Arbitrário para não ser o nível da água
+                minHeight = WATER_LEVEL + 1
+            }
+        }
+    }
+    return minHeight;
+}
+
+const buildingHeight = getBuildingHeight();
+
+let grassMeshes;
+let sandMeshes;
+let stoneMeshes;
+let waterMeshes;
+
 function renderValley() {
     const scale = 20;
     const smootheness = 40;
@@ -170,17 +209,25 @@ function renderValley() {
     const grassPayload = { matrixes: [], count: 0, key: MATERIAL.GRASS };
     const sandPayload = { matrixes: [], count: 0, key: MATERIAL.SAND };
     const stonePayload = { matrixes: [], count: 0, key: MATERIAL.STONE };
+    const waterPayload = { matrixes: [], count: 0, key: MATERIAL.WATER };
     const treePositions = [];
 
     for (let x = - (EXEC_AXIS_VOXEL_COUNT / 2); x < (EXEC_AXIS_VOXEL_COUNT / 2); x++) {
         for (let z = -(EXEC_AXIS_VOXEL_COUNT / 2); z < (EXEC_AXIS_VOXEL_COUNT / 2); z++) {
-            const heightMultiplier = terrainHeightPerlin.get((x / smootheness), (z / smootheness));
+            const isBuildingRange = x >= -8 && x <= 8 && z >= -8 && z <= 8;
 
-            let heightValue = (heightMultiplier + perlinOffset) * scale;
-            if (heightValue > 20) {
-                heightValue = 20;
-            } else if (heightValue < 0) {
-                heightValue = 0;
+            let heightValue;
+            if (isBuildingRange) {
+                heightValue = buildingHeight;
+            } else {
+                const heightMultiplier = terrainHeightPerlin.get((x / smootheness) + 0.01, (z / smootheness) + 0.01);
+
+                heightValue = (heightMultiplier + perlinOffset) * scale;
+                if (heightValue > 20) {
+                    heightValue = 20;
+                } else if (heightValue < 0) {
+                    heightValue = 0;
+                }
             }
 
             const typeMultiplier = terrainTypePerlin.get((x / smootheness), (z / smootheness));
@@ -188,15 +235,16 @@ function renderValley() {
             let selectedPayload = grassPayload;
             if (typeMultiplier > 0.3) {
                 selectedPayload = sandPayload;
-            } else if (typeMultiplier < - 0.3) {
+            } else if (typeMultiplier < - 0.3 || isBuildingRange) {
                 selectedPayload = stonePayload;
             }
 
             const treeRandom = (1 - Math.random()) * 100;
             if (
-                treeRandom <= 0.5 &&
+                treeRandom <= 0.1 &&
                 selectedPayload.key === MATERIAL.GRASS &&
-                Math.floor(heightValue) > 3
+                Math.floor(heightValue) > 3 &&
+                !isBuildingRange
             ) {
                 const nextTreeMatrix = new THREE.Vector3(x, Math.floor(heightValue) + 1, z);
                 const isAwayFromCenter = (x < 20 || x > 20) && (z < 20 || z > 20);
@@ -209,28 +257,22 @@ function renderValley() {
                 }
             }
 
-            if (
-                x != - (EXEC_AXIS_VOXEL_COUNT / 2) &&
-                x != ((EXEC_AXIS_VOXEL_COUNT / 2) - 1) &&
-                z != - (EXEC_AXIS_VOXEL_COUNT / 2) &&
-                z != ((EXEC_AXIS_VOXEL_COUNT / 2) - 1)
-            ) {
-                const roundedHeight = Math.floor(heightValue);
-                // Criamos o voxel pra superfície
-                placeVoxelInValley(roundedHeight > 2 ? selectedPayload : stonePayload, x, roundedHeight, z);
-                // E criamos o voxel para o fundo
-                placeVoxelInValley(stonePayload, x, 0, z);
-            } else {
-                for (let y = 0; y <= Math.floor(heightValue); y++) {
-                    placeVoxelInValley(y > 2 ? selectedPayload : stonePayload, x, y, z);
-                }
+            // Colocar o terreno
+            for (let y = 0; y <= Math.floor(heightValue); y++) {
+                placeVoxelInValley(y > 2 ? selectedPayload : stonePayload, x, y, z);
+            }
+
+            // Colocar a água
+            for (let y = Math.floor(heightValue) + 1; y <= WATER_LEVEL; y++) {
+                placeVoxelInValley(waterPayload, x, y, z);
             }
         }
     }
 
-    updateInstanceMeshes(stonePayload);
-    updateInstanceMeshes(grassPayload);
-    updateInstanceMeshes(sandPayload);
+    stoneMeshes = updateInstanceMeshes(stonePayload);
+    grassMeshes = updateInstanceMeshes(grassPayload);
+    sandMeshes = updateInstanceMeshes(sandPayload);
+    waterMeshes = updateInstanceMeshes(waterPayload);
 
     const promises = treePositions.map(position => {
         const treeValues = Object.values(TREE);
@@ -252,56 +294,16 @@ orbitalCamera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 const orbitalControls = new OrbitControls(orbitalCamera, renderer.domElement);
 
 const firstPersonCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-const characterPosition = new THREE.Vector3(VOXEL_SIZE / 2, VoxelTransformer.transformVoxelCoordinate(getTerrainHeight(0, 0)) + 3 * (VOXEL_SIZE / 2), VOXEL_SIZE / 2);
-firstPersonCamera.position.set(characterPosition.x - (5 * VOXEL_SIZE), characterPosition.y + 3 * (VOXEL_SIZE / 2), characterPosition.z);
+const centerPosition = new THREE.Vector3(VOXEL_SIZE / 2, VoxelTransformer.transformVoxelCoordinate(buildingHeight) + 3 * (VOXEL_SIZE / 2), VOXEL_SIZE / 2);
+firstPersonCamera.position.set(centerPosition.x - (5 * VOXEL_SIZE), centerPosition.y + 3 * (VOXEL_SIZE / 2), centerPosition.z);
 firstPersonCamera.up.copy(camUp);
-firstPersonCamera.lookAt(characterPosition);
-const firstPersonControls = new PointerLockOrbitControls(firstPersonCamera, renderer.domElement);
-firstPersonControls.enableZoom = true;
-firstPersonControls.enablePan = false;
-firstPersonControls.maxPolarAngle = Math.PI / 2;
-
-let characterAnimationMixer = Array();
-
-loadGLTFFile('./assets/character/steve.glb', characterPosition);
-// Finish Importação de arquivo 
-
-function loadGLTFFile(modelName, position) {
-    var loader = new GLTFLoader();
-    loader.load(modelName, function (gltf) {
-        var obj = gltf.scene;
-        obj.traverse(function (child) {
-            if (child.isMesh) child.castShadow = true;
-            if (child.material) child.material.side = THREE.DoubleSide;
-        });
-
-        // Only fix the position of the centered object
-        // The man around will have a different geometric transformation
-        obj.position.copy(position);
-        var scale = getMaxSize(obj); // Available in 'utils.js'
-        obj.scale.set(VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale), VOXEL_SIZE * (0.7 / scale));
-        characterMesh = obj;
-        firstPersonControls.target.copy(characterMesh.position);
-        scene.add(obj);
-
-        isFirstPersonCamera = true;
-        firstPersonControls.lock();
-
-        // Create animationMixer and push it in the array of mixers
-        var mixerLocal = new THREE.AnimationMixer(obj);
-        mixerLocal.clipAction(gltf.animations[0]).play();
-        characterAnimationMixer.push(mixerLocal);
-    }, onProgress, onError);
-}
-
-function onError() { };
-
-function onProgress(xhr, model) { }
+firstPersonCamera.lookAt(centerPosition);
+const firstPersonControls = new PointerLockControls(firstPersonCamera, renderer.domElement);
 
 window.addEventListener('resize', function () { onWindowResize(orbitalCamera, renderer) }, false);
 window.addEventListener('resize', function () { onWindowResize(firstPersonCamera, renderer) }, false);
 
-let isFirstPersonCamera = false;
+let isFirstPersonCamera = true;
 
 // swith between cameras
 window.addEventListener('keydown', (event) => {
@@ -311,7 +313,7 @@ window.addEventListener('keydown', (event) => {
             firstPersonControls.lock();
             orbitalControls.enabled = false;
             firstPersonControls.enabled = true;
-            scene.fog = fog;
+            scene.fog = null;
         } else {
             firstPersonControls.unlock();
             orbitalControls.enabled = true;
@@ -320,18 +322,20 @@ window.addEventListener('keydown', (event) => {
             document.exitPointerLock();
             scene.fog = null;
             blocker.style.display = 'none';
+            crosshair.style.display = 'none';
             isPaused = false;
         }
     }
 });
 
 // movement controls
-const speed = 20;
+const speed = 4 * VOXEL_SIZE;
 let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 const acceleration = - 10 * VOXEL_SIZE;
+const waterAcceleration = acceleration / 3;
 let velocity = 0;
 let canJump = true;
 
@@ -343,7 +347,10 @@ document.getElementById('webgl-output').addEventListener('click', function () {
     }
 }, false);
 
+document.getElementById("webgl-output").appendChild(stats.domElement);
+
 const blocker = document.getElementById('blocker');
+const crosshair = document.getElementById('crosshair');
 
 blocker.addEventListener('click', function (event) {
     firstPersonControls.lock();
@@ -356,10 +363,12 @@ let isPaused = false;
 
 firstPersonControls.addEventListener('lock', function () {
     blocker.style.display = 'none';
+    crosshair.style.display = 'block';
     isPaused = false;
 });
 
 firstPersonControls.addEventListener('unlock', function () {
+    crosshair.style.display = 'none';
     if (isFirstPersonCamera) {
         blocker.style.display = 'block';
         isPaused = true;
@@ -380,74 +389,52 @@ function movementControls(key, value) {
         case 'd':
             moveRight = value;
             break; // D
+        case 'ArrowUp':
+            moveForward = value;
+            break; // Cima
+        case 'ArrowUp':
+            moveBackward = value;
+            break; // Baixo
+        case 'ArrowLeft':
+            moveLeft = value;
+            break; // Esquerda
+        case 'ArrowRight':
+            moveRight = value;
+            break; // Direita
         case ' ':
             if (canJump && firstPersonControls.isLocked) {
                 // Se falso, significa que a gente precisa setar a velocidade inicial da altura;
-                velocity = 5 * VOXEL_SIZE;
+                velocity = 6 * VOXEL_SIZE;
                 canJump = false;
             }
             break; // Space
     }
 }
 
-function adjustQuaternionAxis() {
-    // Extract the Y-axis rotation from the camera's quaternion
-    const euler = new THREE.Euler(0, 0, 0, 'YXZ'); // YXZ order ensures proper extraction
-    euler.setFromQuaternion(firstPersonCamera.quaternion);
-
-    // Apply only the Y rotation to the character
-    characterMesh?.rotation.set(0, euler.y + Math.PI, 0); // + Math.PI to face opposite direction
-}
-
-function moveCharacterForward(distance) {
-    const direction = new THREE.Vector3(0, 0, -1); // Default forward direction in local space
-    const quaternion = new THREE.Quaternion();
-    
-    // Extract rotation from the camera
-    firstPersonCamera.getWorldQuaternion(quaternion);
-    
-    // Rotate the direction by the camera's quaternion
-    direction.applyQuaternion(quaternion);
-    
-    // Move only in the XZ plane (ignore Y)
-    direction.y = 0;
-    direction.normalize();
-    
-    // Apply movement
-    characterMesh.position.addScaledVector(direction, distance);
-    firstPersonControls.target.copy(characterMesh.position);
-    firstPersonCamera.position.addScaledVector(direction, distance);
-}
-
-function moveCharacterRight(distance) {
-    const direction = new THREE.Vector3(1, 0, 0); // Default forward direction in local space
-    const quaternion = new THREE.Quaternion();
-    
-    // Extract rotation from the camera
-    firstPersonCamera.getWorldQuaternion(quaternion);
-    
-    // Rotate the direction by the camera's quaternion
-    direction.applyQuaternion(quaternion);
-    
-    // Move only in the XZ plane (ignore Y)
-    direction.y = 0;
-    direction.normalize();
-    
-    // Apply movement
-    characterMesh.position.addScaledVector(direction, distance);
-    firstPersonControls.target.copy(characterMesh.position);
-    firstPersonCamera.position.addScaledVector(direction, distance);
-}
-
-function moveCharacterUp(distance) {
+function moveUp(distance) {
     const direction = new THREE.Vector3(0, 1, 0); // Default forward direction in local space
 
     direction.normalize();
 
     // Apply movement
-    characterMesh.position.addScaledVector(direction, distance);
-    firstPersonControls.target.copy(characterMesh.position);
     firstPersonCamera.position.addScaledVector(direction, distance);
+}
+
+function getCollidablesAround(collidableList) {
+    const position = firstPersonCamera.position;
+    const list = [];
+
+    for (let x = position.x + (-5 * VOXEL_SIZE); x <= position.x + 5 * VOXEL_SIZE; x += VOXEL_SIZE) {
+        for (let y = position.y + (-5 * VOXEL_SIZE); y <= position.y + 5 * VOXEL_SIZE; y += VOXEL_SIZE) {
+            for (let z = position.z + (-5 * VOXEL_SIZE); z <= position.z + 5 * VOXEL_SIZE; z += VOXEL_SIZE) {
+                const collidable = collidableList[getGridPositionKey(new THREE.Vector3(x, y, z))];
+                if (collidable) {
+                    list.push(collidable);
+                }
+            }
+        }
+    }
+    return list;
 }
 
 function checkCollisionForward(distance) {
@@ -466,12 +453,12 @@ function checkCollisionForward(distance) {
     direction.normalize();
 
     // Apply movement
-    const futurePosition = characterMesh.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
+    const futurePosition = firstPersonCamera.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
     const geometry = new THREE.BoxGeometry(VOXEL_SIZE, 2 * VOXEL_SIZE, VOXEL_SIZE);
     const voxelMesh = new THREE.Mesh(geometry, null);
     voxelMesh.position.copy(futurePosition);
     const box = new THREE.Box3().setFromObject(voxelMesh)
-    if (collidables.some(collidable => collidable.intersectsBox(box))) {
+    if (getCollidablesAround(collidables).some(collidable => collidable.intersectsBox(box))) {
         return true;
     }
 
@@ -502,12 +489,12 @@ function checkCollisionRight(distance) {
     direction.normalize();
 
     // Apply movement
-    const futurePosition = characterMesh.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
+    const futurePosition = firstPersonCamera.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
     const geometry = new THREE.BoxGeometry(VOXEL_SIZE, 2 * VOXEL_SIZE, VOXEL_SIZE);
     const voxelMesh = new THREE.Mesh(geometry, null);
     voxelMesh.position.copy(futurePosition);
     const box = new THREE.Box3().setFromObject(voxelMesh)
-    if (collidables.some(collidable => collidable.intersectsBox(box))) {
+    if (getCollidablesAround(collidables).some(collidable => collidable.intersectsBox(box))) {
         return true;
     }
     if (
@@ -521,55 +508,56 @@ function checkCollisionRight(distance) {
     return false;
 }
 
-function checkCollisionUp(distance) {
+function checkCollisionUp(distance, collidableList) {
     const direction = new THREE.Vector3(0, 1, 0); // Default forward direction in local space
     const bandwidth = new THREE.Vector3(0, 1, 0); // UGH
 
     direction.normalize();
 
     // Apply movement
-    const futurePosition = characterMesh.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
+    const futurePosition = firstPersonCamera.position.clone().addScaledVector(direction, distance).addScaledVector(bandwidth, 0.1);
     const geometry = new THREE.BoxGeometry(VOXEL_SIZE, 2 * VOXEL_SIZE, VOXEL_SIZE);
     const voxelMesh = new THREE.Mesh(geometry, null);
     voxelMesh.position.copy(futurePosition);
     const box = new THREE.Box3().setFromObject(voxelMesh)
-    if (collidables.some(collidable => collidable.intersectsBox(box))) {
+    if (getCollidablesAround(collidableList).some(collidable => collidable.intersectsBox(box))) {
         return true;
     }
     return false;
 }
 
 function moveAnimate(delta) {
-    adjustQuaternionAxis();
     const distance = speed * delta;
 
-    if (!moveForward && !moveBackward && !moveRight && !moveLeft) {
-        // Vamos setar o idle state
-        characterAnimationMixer[0].setTime(2);
-    } else {
-        // Vamos manter o personagem em animação de movimento
-        characterAnimationMixer[0].update(delta);
-    }
-
     if (moveForward && !checkCollisionForward(distance)) {
-        moveCharacterForward(distance);
+        firstPersonControls.moveForward(distance);
     }
     else if (moveBackward && !checkCollisionForward(-distance)) {
-        moveCharacterForward(distance * -1);
+        firstPersonControls.moveForward(distance * -1);
     }
     if (moveRight && !checkCollisionRight(distance)) {
-        moveCharacterRight(distance);
+        firstPersonControls.moveRight(distance);
     }
     else if (moveLeft && !checkCollisionRight(-distance)) {
-        moveCharacterRight(distance * -1);
+        firstPersonControls.moveRight(distance * -1);
     }
 }
 
 function moveJump(delta) {
-    velocity = velocity + acceleration * delta;
-    const distanceY = velocity * delta;
-    if (!checkCollisionUp(distanceY)) {
-        moveCharacterUp(distanceY);
+    let alteredVelocity = velocity + acceleration * delta;
+    let distanceY = alteredVelocity * delta;
+
+    if (checkCollisionUp(distanceY, waterCollidables)) {
+        // Recalcula com aceleração alterada para água
+        velocity = velocity + waterAcceleration * delta;
+        distanceY = velocity * delta;
+    } else {
+        velocity = alteredVelocity;
+        distanceY = velocity * delta;
+    }
+
+    if (!checkCollisionUp(distanceY, collidables)) {
+        moveUp(distanceY);
     } else {
         velocity = 0;
         canJump = true;
@@ -604,6 +592,20 @@ function buildInterface() {
         .name("Fog");
 }
 
+function checkCrosshairColision() {
+    raycaster.setFromCamera(new THREE.Vector2(0.5, 0.5), firstPersonCamera);
+
+    const intersection = raycaster.intersectObject(stoneMeshes);
+
+    // Check for intersections
+    if (intersection.length > 0) {
+        const instanceId = intersection[0].instanceId;
+        console.log(intersection[0]);
+        stoneMeshes.setColorAt(instanceId, new THREE.Color().setHex("#add9e6"));
+        stoneMeshes.instanceColor.needsUpdate = true;
+    }
+}
+
 const clock = new THREE.Clock();
 buildInterface();
 function render() {
@@ -611,13 +613,11 @@ function render() {
     requestAnimationFrame(render);
 
     const delta = clock.getDelta()
-    if (firstPersonControls.isLocked && characterMesh && !isPaused) {
+    if (firstPersonControls.isLocked && !isPaused) {
         moveAnimate(delta);
-    }
-    
-    if (characterMesh) {
         moveJump(delta);
-        updateShadow(light, shadowScale)
+        //updateShadow(light, shadowScale)
+        //checkCrosshairColision();
     }
 
     renderer.render(scene, isFirstPersonCamera ? firstPersonCamera : orbitalCamera);
