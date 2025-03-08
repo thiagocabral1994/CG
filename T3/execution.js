@@ -116,8 +116,33 @@ const terrainTypePerlin = createPerlin();
 const collidables = {};
 const waterCollidables = {};
 
-const fog = new THREE.Fog("#add9e6");
+const fog = new THREE.Fog("#89a5ad");
 scene.fog = fog;
+
+const loader = new THREE.CubeTextureLoader();
+const skybox = loader.load([
+  './assets/textures/sky.jpg', // Direita
+  './assets/textures/sky.jpg', // Esquerda
+  './assets/textures/sky.jpg', // Cima
+  './assets/textures/sky.jpg', // Baixo
+  './assets/textures/sky.jpg', // Frente
+  './assets/textures/sky.jpg'  // Trás
+]);
+
+scene.background = skybox;
+
+const fogInstance = new THREE.Fog("#89a5ad", 10, 100); 
+scene.fog = fogInstance;
+let fogEnabled = true; // fog começa ativado
+
+// evento do teclado
+document.addEventListener('keydown', (event) => {
+  if (event.key.toLowerCase() === 'f') { // F ou f
+    fogEnabled = !fogEnabled; // Alterna entre ligado e desligado
+    scene.fog = fogEnabled ? fogInstance : null; 
+    console.log(`Fog ${fogEnabled ? "ativado" : "desativado"}`);
+  }
+});
 
 function createBatchVoxel(matKey, count) {
     const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
@@ -343,14 +368,14 @@ window.addEventListener('keydown', (event) => {
             firstPersonControls.lock();
             orbitalControls.enabled = false;
             firstPersonControls.enabled = true;
-            scene.fog = null;
+            scene.fog = fog;
         } else {
             firstPersonControls.unlock();
             orbitalControls.enabled = true;
             firstPersonControls.enabled = false;
             // Isso é necessário para evitar um estado intermediário onde o usuário não consegue orbitar a câmera até apertar a tecla ESC.
             document.exitPointerLock();
-            scene.fog = null;
+            scene.fog = fog;
             blocker.style.display = 'none';
             crosshair.style.display = 'none';
             isPaused = false;
