@@ -16,6 +16,7 @@ export const MATERIAL = {
     LEAF_2: "LEAF_2",
     BUILDER_FLOOR: "BUILDER_FLOOR",
     WATER: "WATER",
+    PLANK: "PLANK",
 }
 
 export const TREE = {

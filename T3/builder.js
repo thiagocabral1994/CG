@@ -20,7 +20,7 @@ light = initDefaultBasicLight(scene);
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 
-const cursorMaterials = [MATERIAL.TRUNK_1, MATERIAL.TRUNK_2, MATERIAL.TRUNK_3, MATERIAL.LEAF_1, MATERIAL.LEAF_2];
+const cursorMaterials = [MATERIAL.TRUNK_1, MATERIAL.TRUNK_2, MATERIAL.TRUNK_3, MATERIAL.LEAF_1, MATERIAL.LEAF_2, MATERIAL.PLANK];
 
 let activeMaterialIndex = 0;
 

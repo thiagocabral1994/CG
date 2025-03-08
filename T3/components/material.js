@@ -30,6 +30,8 @@ const leaf = textureLoader.load('./assets/textures/tree_leaf.png');
     leaf.colorSpace = THREE.SRGBColorSpace;
 const leaf2 = textureLoader.load('./assets/textures/tree_leaf2.png');
 leaf2.colorSpace = THREE.SRGBColorSpace;
+const plank = textureLoader.load('./assets/textures/plank.jpg');
+plank.colorSpace = THREE.SRGBColorSpace;
 
 const builderFloor = textureLoader.load('./assets/textures/builder_floor.jpg');
 builderFloor.wrapS = THREE.RepeatWrapping;
@@ -85,6 +87,7 @@ export const VoxelMaterial = {
                 { visible: false }, // lado 3
                 { visible: false } // lado 4
         ],
+        [MATERIAL.PLANK]: { map: plank }
     },
     getCursorMeshMaterial: (key) => {
         if (Array.isArray(VoxelMaterial.catalog[key])) {

@@ -1,0 +1,2042 @@
+[
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 1,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 1,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 1,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 1,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -3,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -2,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -1,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 0,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 2,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 1,
+    "gridY": 3,
+    "gridZ": 3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": 2,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": 1,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": 0,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": -1,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": -2,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 3,
+    "gridY": 3,
+    "gridZ": -3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 2,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 1,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": 0,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -1,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -2,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -3,
+    "gridY": 3,
+    "gridZ": -4,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": -3,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": -2,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": -1,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": 0,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": 1,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -4,
+    "gridY": 3,
+    "gridZ": 2,
+    "materialKey": "TRUNK_1"
+  },
+  {
+    "gridX": -3,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -3,
+    "gridY": 1,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -3,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -2,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -1,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 0,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 1,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 2,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 2,
+    "gridY": 1,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 2,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 1,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 0,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -1,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -2,
+    "gridY": 2,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -2,
+    "gridY": 1,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 1,
+    "gridY": 1,
+    "gridZ": 3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 1,
+    "gridZ": 2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": 2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": 2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": 1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": 0,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": -1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": -2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": -3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 1,
+    "gridZ": -3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": -3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": -2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": -1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": 0,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 2,
+    "gridZ": 1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 1,
+    "gridZ": 1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 3,
+    "gridY": 1,
+    "gridZ": -2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": 2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": 1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": 0,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": -1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": -2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": -3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 1,
+    "gridZ": -3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": -3,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": -2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": -1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": 0,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": 1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 2,
+    "gridZ": 2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 1,
+    "gridZ": 2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 1,
+    "gridZ": -2,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -4,
+    "gridY": 1,
+    "gridZ": 1,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 2,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 2,
+    "gridY": 1,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 2,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 0,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -1,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -2,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -3,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 1,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -3,
+    "gridY": 1,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -3,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -2,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -1,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 0,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 1,
+    "gridY": 2,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": 1,
+    "gridY": 1,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -2,
+    "gridY": 1,
+    "gridZ": -4,
+    "materialKey": "PLANK"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": 4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 4,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": -5,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -5,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 4,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": 3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 3,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": -4,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -4,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 5,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 6,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 6,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 6,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 6,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 6,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 6,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 6,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 6,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 6,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 6,
+    "gridZ": 2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 6,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 6,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 6,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 6,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 6,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 6,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 6,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 6,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 6,
+    "gridZ": -2,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 6,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 6,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 6,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 6,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 6,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 6,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 6,
+    "gridZ": 1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 6,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 6,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 6,
+    "gridZ": -1,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 6,
+    "gridZ": 0,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 6,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -2,
+    "gridY": 6,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -1,
+    "gridY": 6,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 0,
+    "gridY": 6,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 1,
+    "gridY": 6,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": 2,
+    "gridY": 6,
+    "gridZ": -3,
+    "materialKey": "TRUNK_3"
+  },
+  {
+    "gridX": -3,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -2,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -1,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 0,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 1,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 2,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": 2,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": 1,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": 0,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": -1,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": -2,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": -3,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 4,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 3,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 2,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 1,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": 0,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -1,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -2,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -3,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -4,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": -5,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": -4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": -3,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": -1,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": 0,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": 1,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": 2,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": 3,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": 4,
+    "materialKey": "LEAF_2"
+  },
+  {
+    "gridX": -5,
+    "gridY": 0,
+    "gridZ": -2,
+    "materialKey": "LEAF_2"
+  }
+]
