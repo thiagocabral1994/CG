@@ -28,7 +28,7 @@ const sand = textureLoader.load('./assets/textures/sand.jpg');
 sand.colorSpace = THREE.SRGBColorSpace;
 const leaf = textureLoader.load('./assets/textures/tree_leaf.png');
     leaf.colorSpace = THREE.SRGBColorSpace;
-const leaf2 = textureLoader.load('./assets/textures/tree_leaf2.jpg');
+const leaf2 = textureLoader.load('./assets/textures/tree_leaf2.png');
 leaf2.colorSpace = THREE.SRGBColorSpace;
 
 const builderFloor = textureLoader.load('./assets/textures/builder_floor.jpg');
@@ -74,8 +74,8 @@ export const VoxelMaterial = {
             { map: treeTrunk3 }, // lado 3
             { map: treeTrunk3 }, // lado 4
         ],
-        [MATERIAL.LEAF_1]: { map: leaf },
-        [MATERIAL.LEAF_2]: { map: leaf2 }, // TODO: arrumar outra folha pra ca
+        [MATERIAL.LEAF_1]: { map: leaf, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5, opacity: 1 },
+        [MATERIAL.LEAF_2]: { map: leaf2, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5, opacity: 1 }, // TODO: arrumar outra folha pra ca
         [MATERIAL.BUILDER_FLOOR]: { map: builderFloor, side: THREE.DoubleSide },
         [MATERIAL.WATER]: [
                 { visible: false }, // lado 1
