@@ -16,6 +16,29 @@ import createPerlin from './util/perlin.js'
 
 var stats = new Stats();
 
+function onButtonPressed() {
+  const loadingScreen = document.getElementById( 'loading-screen' );
+  loadingScreen.transition = 0;
+  loadingScreen.classList.add( 'fade-out' );
+  loadingScreen.addEventListener( 'transitionend', (e) => {
+    const element = e.target;
+    element.remove();  
+  });
+}
+
+const loadingManager = new THREE.LoadingManager( () => {
+  let loadingScreen = document.getElementById( 'loading-screen' );
+  loadingScreen.transition = 0;
+  loadingScreen.style.setProperty('--speed1', '0');  
+  loadingScreen.style.setProperty('--speed2', '0');  
+  loadingScreen.style.setProperty('--speed3', '0');      
+
+  let button  = document.getElementById("myBtn")
+  button.style.backgroundColor = 'Blue';
+  button.innerHTML = 'Start';
+  button.addEventListener("click", onButtonPressed);
+});
+
 const getGridPositionKey = (position) => {
     const { x, y, z } = position;
     const calcX = Math.floor(VoxelTransformer.transformGridCoordinate(x, false));
@@ -200,6 +223,7 @@ let grassMeshes;
 let sandMeshes;
 let stoneMeshes;
 let waterMeshes;
+let dirtMeshes;
 
 function renderValley() {
     const scale = 20;
@@ -207,6 +231,7 @@ function renderValley() {
     const perlinOffset = 0.50;
 
     const grassPayload = { matrixes: [], count: 0, key: MATERIAL.GRASS };
+    const dirtPayload = { matrixes: [], count: 0, key: MATERIAL.DIRT };
     const sandPayload = { matrixes: [], count: 0, key: MATERIAL.SAND };
     const stonePayload = { matrixes: [], count: 0, key: MATERIAL.STONE };
     const waterPayload = { matrixes: [], count: 0, key: MATERIAL.WATER };
@@ -232,7 +257,7 @@ function renderValley() {
 
             const typeMultiplier = terrainTypePerlin.get((x / smootheness), (z / smootheness));
 
-            let selectedPayload = grassPayload;
+            let selectedPayload = dirtPayload;
             if (typeMultiplier > 0.3) {
                 selectedPayload = sandPayload;
             } else if (typeMultiplier < - 0.3 || isBuildingRange) {
@@ -242,7 +267,7 @@ function renderValley() {
             const treeRandom = (1 - Math.random()) * 100;
             if (
                 treeRandom <= 0.1 &&
-                selectedPayload.key === MATERIAL.GRASS &&
+                selectedPayload.key === MATERIAL.DIRT &&
                 Math.floor(heightValue) > 3 &&
                 !isBuildingRange
             ) {
@@ -259,7 +284,11 @@ function renderValley() {
 
             // Colocar o terreno
             for (let y = 0; y <= Math.floor(heightValue); y++) {
-                placeVoxelInValley(y > 2 ? selectedPayload : stonePayload, x, y, z);
+                if (selectedPayload.key === MATERIAL.DIRT && y === Math.floor(heightValue)) {
+                    placeVoxelInValley(grassPayload, x, y, z);
+                } else {
+                    placeVoxelInValley(y > 2 ? selectedPayload : stonePayload, x, y, z);
+                }
             }
 
             // Colocar a água
@@ -271,6 +300,7 @@ function renderValley() {
 
     stoneMeshes = updateInstanceMeshes(stonePayload);
     grassMeshes = updateInstanceMeshes(grassPayload);
+    dirtMeshes = updateInstanceMeshes(dirtPayload);
     sandMeshes = updateInstanceMeshes(sandPayload);
     waterMeshes = updateInstanceMeshes(waterPayload);
 
@@ -593,7 +623,7 @@ function buildInterface() {
 }
 
 function checkCrosshairColision() {
-    raycaster.setFromCamera(new THREE.Vector2(0.5, 0.5), firstPersonCamera);
+    raycaster.setFromCamera(new THREE.Vector2(0, 0), firstPersonCamera);
 
     const intersection = raycaster.intersectObject(stoneMeshes);
 
@@ -601,7 +631,7 @@ function checkCrosshairColision() {
     if (intersection.length > 0) {
         const instanceId = intersection[0].instanceId;
         console.log(intersection[0]);
-        stoneMeshes.setColorAt(instanceId, new THREE.Color().setHex("#add9e6"));
+        stoneMeshes.setColorAt(instanceId, new THREE.Color().setHex("0x0000ff"));
         stoneMeshes.instanceColor.needsUpdate = true;
     }
 }
@@ -617,7 +647,7 @@ function render() {
         moveAnimate(delta);
         moveJump(delta);
         //updateShadow(light, shadowScale)
-        //checkCrosshairColision();
+        // checkCrosshairColision();
     }
 
     renderer.render(scene, isFirstPersonCamera ? firstPersonCamera : orbitalCamera);
