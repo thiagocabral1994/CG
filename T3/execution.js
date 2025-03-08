@@ -18,26 +18,26 @@ import { CubeTextureLoaderSingleFile } from '../libs/util/cubeTextureLoaderSingl
 var stats = new Stats();
 
 function onButtonPressed() {
-  const loadingScreen = document.getElementById('loading-screen');
-  loadingScreen.transition = 0;
-  loadingScreen.classList.add('fade-out');
-  loadingScreen.addEventListener('transitionend', (e) => {
-    const element = e.target;
-    element.remove();  
-  });
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.transition = 0;
+    loadingScreen.classList.add('fade-out');
+    loadingScreen.addEventListener('transitionend', (e) => {
+        const element = e.target;
+        element.remove();
+    });
 }
 
 const loadingManager = new THREE.LoadingManager(() => {
-  let loadingScreen = document.getElementById('loading-screen');
-  loadingScreen.transition = 0;
-  loadingScreen.style.setProperty('--speed1', '0');  
-  loadingScreen.style.setProperty('--speed2', '0');  
-  loadingScreen.style.setProperty('--speed3', '0');      
+    let loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.transition = 0;
+    loadingScreen.style.setProperty('--speed1', '0');
+    loadingScreen.style.setProperty('--speed2', '0');
+    loadingScreen.style.setProperty('--speed3', '0');
 
-  let button = document.getElementById("myBtn")
-  button.style.backgroundColor = 'Blue';
-  button.innerHTML = 'Start';
-  button.addEventListener("click", onButtonPressed);
+    let button = document.getElementById("myBtn")
+    button.style.backgroundColor = 'Blue';
+    button.innerHTML = 'Start';
+    button.addEventListener("click", onButtonPressed);
 });
 
 const getGridPositionKey = (position) => {
@@ -163,6 +163,19 @@ async function addTree(treeKey, mapPosition) {
     });
 }
 
+async function addHouse(mapPosition) {
+    const response = await fetch(`./assets/house/house.json`);
+    const houseVoxelList = await response.json();
+    houseVoxelList.forEach(({ gridX, gridY, gridZ, materialKey }) => {
+        const x = VoxelTransformer.transformVoxelCoordinate(mapPosition.x + gridX, false);
+        const y = VoxelTransformer.transformVoxelCoordinate(mapPosition.y + gridY);
+        const z = VoxelTransformer.transformVoxelCoordinate(mapPosition.z + gridZ, false);
+        createVoxel(x, y, z, materialKey);
+    });
+}
+
+const rayInstancedMeshesMapping = {};
+
 function placeVoxelInValley(payload, x, y, z) {
     const { matrixes, count } = payload;
 
@@ -180,6 +193,10 @@ function placeVoxelInValley(payload, x, y, z) {
         waterCollidables[getGridPositionKey(tempMesh.position)] = new THREE.Box3().setFromObject(tempMesh);
     } else {
         collidables[getGridPositionKey(tempMesh.position)] = new THREE.Box3().setFromObject(tempMesh);
+        rayInstancedMeshesMapping[getGridPositionKey(tempMesh.position)] = {
+            key: payload.key,
+            instanceId: count,
+        }
     }
     payload.count++;
 }
@@ -192,30 +209,14 @@ function updateInstanceMeshes(payload) {
     return instanceMesh;
 }
 
-function getTerrainHeight(x, z) {
-    const scale = 20;
-    const smootheness = 40;
-    const perlinOffset = 0.50;
-    const heightMultiplier = terrainHeightPerlin.get((x / smootheness), (z / smootheness));
-
-    let heightValue = (heightMultiplier + perlinOffset) * scale;
-    if (heightValue > 20) {
-        heightValue = 20;
-    } else if (heightValue < 0) {
-        heightValue = 0;
-    }
-
-    return Math.floor(heightValue);
-}
-
 
 function getBuildingHeight() {
     const scale = 20;
     const smootheness = 40;
     const perlinOffset = 0.50;
     let minHeight = Number.POSITIVE_INFINITY; // Número arbitrário para ser sobrescrito
-    for (let x = - 8; x < 8; x++) {
-        for (let z = -8; z < 8; z++) {
+    for (let x = - 10; x < 10; x++) {
+        for (let z = -10; z < 10; z++) {
             const heightMultiplier = terrainHeightPerlin.get((x / smootheness) + 0.01, (z / smootheness) + 0.01);
             const heightValue = (heightMultiplier + perlinOffset) * scale;
             minHeight = heightValue < minHeight ? heightValue : minHeight;
@@ -250,7 +251,7 @@ function renderValley() {
 
     for (let x = - (EXEC_AXIS_VOXEL_COUNT / 2); x < (EXEC_AXIS_VOXEL_COUNT / 2); x++) {
         for (let z = -(EXEC_AXIS_VOXEL_COUNT / 2); z < (EXEC_AXIS_VOXEL_COUNT / 2); z++) {
-            const isBuildingRange = x >= -8 && x <= 8 && z >= -8 && z <= 8;
+            const isBuildingRange = x >= -10 && x <= 10 && z >= -10 && z <= 10;
 
             let heightValue;
             if (isBuildingRange) {
@@ -321,7 +322,9 @@ function renderValley() {
         addTree(randomKey, position);
     });
 
-    return Promise.resolve(promises);
+    const promiseHouse = addHouse(new THREE.Vector3(0, buildingHeight, 0));
+
+    return Promise.resolve([...promises, promiseHouse]);
 }
 
 // Orbital camera
@@ -336,7 +339,7 @@ const orbitalControls = new OrbitControls(orbitalCamera, renderer.domElement);
 
 const firstPersonCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 const centerPosition = new THREE.Vector3(VOXEL_SIZE / 2, VoxelTransformer.transformVoxelCoordinate(buildingHeight) + 3 * (VOXEL_SIZE / 2), VOXEL_SIZE / 2);
-firstPersonCamera.position.set(centerPosition.x - (5 * VOXEL_SIZE), centerPosition.y + 3 * (VOXEL_SIZE / 2), centerPosition.z);
+firstPersonCamera.position.set(centerPosition.x - (10 * VOXEL_SIZE), centerPosition.y + 3 * (VOXEL_SIZE / 2), centerPosition.z);
 firstPersonCamera.up.copy(camUp);
 firstPersonCamera.lookAt(centerPosition);
 const firstPersonControls = new PointerLockControls(firstPersonCamera, renderer.domElement);
@@ -477,6 +480,23 @@ function getCollidablesAround(collidableList) {
     }
     return list;
 }
+
+// function getRayCandidatesAround() {
+//     const position = firstPersonCamera.position;
+//     const list = [];
+
+//     for (let x = position.x + (-2 * VOXEL_SIZE); x <= position.x + 2 * VOXEL_SIZE; x += VOXEL_SIZE) {
+//         for (let y = position.y + (-2 * VOXEL_SIZE); y <= position.y + 2 * VOXEL_SIZE; y += VOXEL_SIZE) {
+//             for (let z = position.z + (-2 * VOXEL_SIZE); z <= position.z + 2 * VOXEL_SIZE; z += VOXEL_SIZE) {
+//                 const candidate = rayInstancedMeshesMapping[getGridPositionKey(new THREE.Vector3(x, y, z))];
+//                 if (candidate) {
+//                     list.push(candidate);
+//                 }
+//             }
+//         }
+//     }
+//     return list;
+// }
 
 function checkCollisionForward(distance) {
     const direction = new THREE.Vector3(0, 0, -1); // Default forward direction in local space
@@ -633,19 +653,134 @@ function buildInterface() {
         .name("Fog");
 }
 
-function checkCrosshairColision() {
-    raycaster.setFromCamera(new THREE.Vector2(0, 0), firstPersonCamera);
+// let highlightedMesh;
+// let selectedCrosshairPayload;
 
-    const intersection = raycaster.intersectObject(stoneMeshes);
+// function eraseSelectedBlock() {
 
-    // Check for intersections
-    if (intersection.length > 0) {
-        const instanceId = intersection[0].instanceId;
-        console.log(intersection[0]);
-        stoneMeshes.setColorAt(instanceId, new THREE.Color().setHex("0x0000ff"));
-        stoneMeshes.instanceColor.needsUpdate = true;
+// }
+
+// function getMeshFromInstancedMesh(key, instanceId) {
+//     let meshes;
+
+//     switch (key) {
+//         case MATERIAL.STONE:
+//             meshes = stoneMeshes;
+//             break;
+//         case MATERIAL.SAND:
+//             meshes = sandMeshes;
+//             break;
+//         case MATERIAL.DIRT:
+//             meshes = dirtMeshes;
+//             break;
+//         case MATERIAL.GRASS:
+//             meshes = grassMeshes;
+//             break;
+//     }
+
+//     const matrix = new THREE.Matrix4();
+//     meshes.getMatrixAt(instanceId, matrix);
+//     const position = new THREE.Vector3();
+//     const quaternion = new THREE.Quaternion();
+//     const scale = new THREE.Vector3();
+//     matrix.decompose(position, quaternion, scale);
+//     const newMesh = new THREE.Mesh(meshes.geometry, meshes.material);
+//     newMesh.position.copy(position);
+//     newMesh.quaternion.copy(quaternion);
+//     newMesh.scale.copy(scale);
+//     return newMesh;
+// }
+
+// function checkCrosshairColision() {
+//     raycaster.setFromCamera(new THREE.Vector2(0, 0), firstPersonCamera);
+
+//     let instersectVector = new THREE.Vector3(0, 0, 0);
+//     const boundingBox = new THREE.Box3().setFromObject(stoneMeshes);
+//     raycaster.ray.intersectBox(boundingBox, instersectVector)
+//     if (!instersectVector) {
+//         console.log("abort")
+//         return; // Skip expensive raycasting
+//     }
+
+//     console.log(instersectVector)
+
+//     const candidates = getRayCandidatesAround().map(item => ({
+//         key: item.key,
+//         instanceId: item.instanceId,
+//         mesh: getMeshFromInstancedMesh(item.key, item.instanceId),
+//     }));
+
+//     // const intersection = raycaster.intersectObject(candidates.map(it => it.mesh)[0]);
+//     const intersection = raycaster.intersectObjects([stoneMeshes]);
+
+//     // Check for intersections
+//     if (intersection.length > 0) {
+//         const instanceId = intersection[0].instanceId;
+//         console.log(instanceId);
+//         return;
+
+//         if (highlightedMesh) {
+//             scene.remove(highlightedMesh)
+//         }
+
+//         let meshes = stoneMeshes;
+//         // switch (closestIntersection.key) {
+//         //     case MATERIAL.STONE:
+//         //         meshes = stoneMeshes;
+//         //         break;
+//         //     case MATERIAL.SAND:
+//         //         meshes = sandMeshes;
+//         //         break;
+//         //     case MATERIAL.DIRT:
+//         //         meshes = dirtMeshes;
+//         //         break;
+//         //     case MATERIAL.GRASS:
+//         //         meshes = grassMeshes;
+//         //         break;
+
+//         // }
+
+//         const matrix = new THREE.Matrix4();
+//         meshes.getMatrixAt(instanceId, matrix);
+
+//         // Decompose the matrix to get position
+//         const position = new THREE.Vector3();
+//         const quaternion = new THREE.Quaternion();
+//         const scale = new THREE.Vector3();
+//         matrix.decompose(position, quaternion, scale);
+
+//         // Create a new naive mesh with the same geometry and material
+//         const newMesh = new THREE.Mesh(meshes.geometry, meshes.material.clone());
+//         const color = newMesh.material.color;
+//         color.multiplyScalar(2.0);
+//         // newMesh.material.wireframe = true;
+//         newMesh.position.copy(position);
+//         newMesh.quaternion.copy(quaternion);
+//         newMesh.scale.copy(scale);
+//         newMesh.scale.multiplyScalar(1.01);
+
+//         highlightedMesh = newMesh;
+//         selectedCrosshairPayload = {
+//             key: MATERIAL.STONE,
+//             instanceId
+//         }
+
+//         scene.add(newMesh)
+//     }
+// }
+
+document.addEventListener('mousedown', (event) => {
+    if (event.button === 0) {
+        if (firstPersonControls.isLocked && !isPaused) {
+            eraseSelectedBlock();
+        }
+    } else if (event.button === 2) {
+        if (canJump && firstPersonControls.isLocked) {
+            velocity = 6 * VOXEL_SIZE;
+            canJump = false;
+        }
     }
-}
+});
 
 const clock = new THREE.Clock();
 buildInterface();
