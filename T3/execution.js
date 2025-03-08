@@ -112,6 +112,7 @@ function createVoxel(x, y, z, key) {
 }
 
 async function addTree(treeKey, mapPosition) {
+    
     const response = await fetch(`./assets/trees/${treeKey}.json`);
     const tree1VoxelList = await response.json();
     tree1VoxelList.forEach(({ gridX, gridY, gridZ, materialKey }) => {
@@ -169,7 +170,7 @@ function renderValley() {
 
     const grassPayload = { matrixes: [], count: 0, key: MATERIAL.GRASS };
     const sandPayload = { matrixes: [], count: 0, key: MATERIAL.SAND };
-    const stonePayload = { matrixes: [], count: 0, key: MATERIAL.STONE };
+    const stonePayload = { matrixes: [], count: 0, key: MATERIAL.WATER };
     const treePositions = [];
 
     for (let x = - (EXEC_AXIS_VOXEL_COUNT / 2); x < (EXEC_AXIS_VOXEL_COUNT / 2); x++) {
