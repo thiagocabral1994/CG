@@ -75,7 +75,7 @@ export const VoxelMaterial = {
             { map: treeTrunk3 }, // lado 4
         ],
         [MATERIAL.LEAF_1]: { map: leaf, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5, opacity: 1 },
-        [MATERIAL.LEAF_2]: { map: leaf2, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5, opacity: 1 }, // TODO: arrumar outra folha pra ca
+        [MATERIAL.LEAF_2]: { map: leaf2, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5, opacity: 1 },
         [MATERIAL.BUILDER_FLOOR]: { map: builderFloor, side: THREE.DoubleSide },
         [MATERIAL.WATER]: [
                 { visible: false }, // lado 1
@@ -97,7 +97,7 @@ export const VoxelMaterial = {
     },
     getMeshMaterial: (key) => {
         if (Array.isArray(VoxelMaterial.catalog[key])) {
-            return VoxelMaterial.catalog[key].map(item => new THREE.MeshLambertMaterial({ ...item }));
+            return VoxelMaterial.catalog[key].map(item => new THREE.MeshLambertMaterial({ ...item, transparent: true }));
         }
         return new THREE.MeshLambertMaterial({ ...VoxelMaterial.catalog[key] });
     },
