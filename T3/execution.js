@@ -306,12 +306,12 @@ function updateShadow(lightSource, scale) {
 
     const shadow = lightSource.shadow;
 
-    const shadowSide = 100 * VOXEL_SIZE;
+    const shadowSide = (30 + scale) * VOXEL_SIZE;
     const shadowNear = 0.1 * VOXEL_SIZE;
-    const shadowFar = 30 * VOXEL_SIZE;
+    const shadowFar = (20 + scale) * VOXEL_SIZE;
 
-    shadow.mapSize.width = 512 * VOXEL_SIZE;
-    shadow.mapSize.height = 512 * VOXEL_SIZE;
+    shadow.mapSize.width = (1024 - 2 * scale) * VOXEL_SIZE;
+    shadow.mapSize.height = (1024 - 2 * scale) * VOXEL_SIZE;
     shadow.camera.near = shadowNear;
     shadow.camera.far = shadowFar;
     shadow.camera.left = -shadowSide / 2;
