@@ -16,7 +16,55 @@ const voxelMap = new Map();
 const heightVoxelMap = new Map();
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer("#f0f0f0");    // View function in util/utils
-light = initDefaultBasicLight(scene);
+
+function createAmbientLight(power) {
+    const ambientLight = new THREE.HemisphereLight(
+        'white', // bright sky color
+        'darkslategrey', // dim ground color
+        0.1 * power, // intensity
+    );
+    scene.add(ambientLight);
+}
+
+function createDirectionalLight(power = Math.PI) {
+    const mainLight = new THREE.DirectionalLight('white', 1 * power);
+    mainLight.position.copy(new THREE.Vector3(-10 * VOXEL_SIZE, 20 * VOXEL_SIZE, 5 * VOXEL_SIZE));
+    mainLight.castShadow = true;
+    scene.add(mainLight);
+
+    updateShadow(mainLight);
+
+    return mainLight;
+}
+
+function updateShadow(lightSource) {
+
+    const shadow = lightSource.shadow;
+
+    const shadowSide = 15 * VOXEL_SIZE;
+    const shadowNear = 0.1;
+    const shadowFar = 30 * VOXEL_SIZE;
+
+    shadow.mapSize.width = 1024;
+    shadow.mapSize.height = 1024;
+    shadow.camera.near = shadowNear;
+    shadow.camera.far = shadowFar;
+    shadow.camera.left = -shadowSide / 2;
+    shadow.camera.right = shadowSide / 2;
+    shadow.camera.bottom = -shadowSide / 2;
+    shadow.camera.top = shadowSide / 2;
+
+    shadow.needsUpdate = true;
+}
+
+function createLight() {
+   const power = Math.PI;
+   createAmbientLight(power)
+
+   return createDirectionalLight(power)
+}
+
+light = createLight();
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 
@@ -34,7 +82,9 @@ planeMesh.matrixAutoUpdate = false;
 planeMesh.matrix.identity(); // resetting matrices
 // Will execute R1 and then T1
 planeMesh.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1   
-planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1   
+planeMesh.matrix.multiply(mat4.makeRotationX(-90 * Math.PI / 180)); // R1
+planeMesh.castShadow = true;
+planeMesh.receiveShadow = true;
 scene.add(planeMesh);
 
 const gridHelper = new THREE.GridHelper(VOXEL_SIZE * BUILDER_AXIS_VOXEL_COUNT, BUILDER_AXIS_VOXEL_COUNT, 0x444444, 0x888888);

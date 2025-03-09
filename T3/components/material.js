@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { MATERIAL } from "../global/constants.js";
+import { loadingManager } from './loadManager.js';
 
-const textureLoader = new THREE.TextureLoader();
+export const textureLoader = new THREE.TextureLoader(loadingManager);
 const fullGrass = textureLoader.load('./assets/textures/full_grass.png');
 fullGrass.colorSpace = THREE.SRGBColorSpace;
 const fullLand = textureLoader.load('./assets/textures/full_land.png');

@@ -7,6 +7,8 @@ export const VoxelBuilder = {
         const voxelGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
         const voxelMeshMaterial = VoxelMaterial.getMeshMaterial(materialKey);
         const voxelMesh = new THREE.Mesh(voxelGeometry, voxelMeshMaterial);
+        voxelMesh.castShadow = true;
+        voxelMesh.receiveShadow = true;
         voxelMesh.position.set(position.x, position.y, position.z);
         return voxelMesh
     }
